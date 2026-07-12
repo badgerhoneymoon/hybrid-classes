@@ -33,6 +33,28 @@ của từng người. Để mọi người thấy chung một danh sách chỗ 
 5. Commit và push (xem mục trên). Xong — chỗ trống giờ là dữ liệu chung,
    cập nhật theo thời gian thực cho tất cả mọi người.
 
+## Trang quản trị (dành cho chủ phòng tập)
+
+Mở **`/admin.html`** (ví dụ `https://elevate-classes.vercel.app/admin.html`),
+nhập mã PIN → xem toàn bộ lượt đặt **kèm SĐT/email**, sĩ số từng buổi, và nút
+**Xoá** để trả chỗ khi khách huỷ. Trang tự làm mới mỗi phút.
+
+Cài đặt một lần (sau khi đã chạy `supabase-schema.sql`):
+
+1. Supabase → **SQL Editor** → dán toàn bộ file `supabase-admin.sql` → **Run**.
+2. Đặt mã PIN — chạy tiếp lệnh sau (thay `MA-PIN-CUA-BAN` bằng mã bạn chọn,
+   giữ nguyên dấu nháy đơn):
+
+```sql
+insert into public.admin_config (id, pin_hash)
+values (true, crypt('MA-PIN-CUA-BAN', gen_salt('bf')))
+on conflict (id) do update set pin_hash = excluded.pin_hash;
+```
+
+Đổi PIN bất cứ lúc nào bằng cách chạy lại đúng lệnh đó với mã mới. Mã PIN
+được băm (bcrypt) trước khi lưu và **không bao giờ** nằm trong code/repo;
+kiểm tra PIN diễn ra ở máy chủ nên người không có mã không xem được gì.
+
 Ghi chú:
 
 - **anon key để công khai trong file là bình thường** — nó chỉ cho phép gọi
