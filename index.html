@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root{
     --bg:#ffffff;
@@ -237,7 +238,7 @@
   <div class="eyebrow">Lịch tập</div>
   <h2>Lịch lớp buổi chiều</h2>
   <p class="lead">Mỗi ngày là một chủ đề riêng — chọn lớp phù hợp và đặt chỗ bên dưới.</p>
-  <div class="note">Đây là bản demo giao diện: lượt đặt lớp được lưu trên trình duyệt này để xem trước trải nghiệm. Khi đưa trang lên mạng thật, phần đặt lịch nên nối vào một hệ thống lưu trữ dùng chung (Google Sheet/Calendly/cơ sở dữ liệu...).</div>
+  <div class="note" id="modeNote"></div>
   <div id="classSchedule"></div>
 </section>
 
@@ -268,9 +269,9 @@
 <section id="thanhvien">
   <div class="eyebrow">Cộng đồng</div>
   <h2>Thành viên đã đăng ký</h2>
-  <p class="lead">Danh sách cập nhật theo các lượt đặt lớp trên trình duyệt này.</p>
+  <p class="lead" id="membersLead"></p>
   <table>
-    <thead><tr><th>Tên</th><th>Lớp</th><th>Ngày · Giờ</th><th>Liên hệ</th></tr></thead>
+    <thead><tr><th>Tên</th><th>Lớp</th><th>Ngày · Giờ</th></tr></thead>
     <tbody id="memberTableBody"></tbody>
   </table>
   <p id="noMembers" class="lead" style="display:none;margin-top:16px;">Chưa có ai đặt lớp — hãy là người đầu tiên ở mục Lịch lớp phía trên.</p>
@@ -319,10 +320,10 @@
   <h2>Ghé thăm phòng tập</h2>
   <div class="contact-grid">
     <div class="contact-info">
-      <div><b>Địa chỉ</b>[Điền địa chỉ phòng tập của bạn]</div>
-      <div><b>Điện thoại</b>[Điền số điện thoại]</div>
-      <div><b>Email</b>[Điền email liên hệ]</div>
-      <div><b>Giờ mở cửa</b>Thứ 2 – Thứ 6: 6:00 – 20:00</div>
+      <div><b>Địa chỉ</b>71 Hoàng Kế Viêm, Mỹ An, Ngũ Hành Sơn, Đà Nẵng</div>
+      <div><b>Điện thoại</b><a href="tel:+84377429026">+84 377 429 026</a></div>
+      <div><b>Email</b><a href="mailto:elevatedanang@gmail.com">elevatedanang@gmail.com</a></div>
+      <div><b>Giờ mở cửa</b>Thứ 2 – Thứ 7: 6:00 – 21:00</div>
     </div>
     <div class="about-card">
       <h3>Muốn thử một buổi?</h3>
@@ -333,7 +334,7 @@
 </section>
 
 <footer>
-  ELEVATE — Trang minh hoạ, chưa host chính thức · © 2026
+  ELEVATE — S&C Group Classes · 71 Hoàng Kế Viêm, Đà Nẵng · © 2026
 </footer>
 
 <div class="overlay" id="overlay">
@@ -368,6 +369,16 @@ const classes = [
   {id:"fri2", day:"Thứ 6", time:"18:15", name:"Lower Body Squat", focus:"Thân dưới · Đẩy", desc:"Cùng nội dung buổi 17:00, dành cho khung giờ muộn hơn."},
 ];
 
+// ==== CẤU HÌNH SUPABASE (đặt lớp dùng chung) ====
+// Dán Project URL và anon key từ Supabase → Settings → API vào 2 dòng dưới
+// (xem README.md). Để trống thì trang chạy ở chế độ demo: lượt đặt chỉ lưu
+// trên trình duyệt của từng người.
+const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";
+
+const SHARED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+const db = SHARED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 function loadBookings(){
   try{ return JSON.parse(localStorage.getItem("elevate_bookings") || "[]"); }
   catch(e){ return []; }
@@ -376,8 +387,22 @@ function saveBookings(list){
   localStorage.setItem("elevate_bookings", JSON.stringify(list));
 }
 
-let bookings = loadBookings();
+let bookings = SHARED ? [] : loadBookings();
 let activeClassId = null;
+
+// Chế độ dùng chung: tải danh sách đặt chỗ (chỉ tên + lớp, không có liên hệ)
+// cho các buổi sắp diễn ra, rồi vẽ lại toàn trang.
+async function refresh(){
+  if(SHARED){
+    const { data, error } = await db.rpc("list_bookings");
+    if(!error && Array.isArray(data)){
+      bookings = data.map(r => ({classId: r.class_id, name: r.name}));
+    }
+  }
+  renderHeroPreview();
+  renderSchedule();
+  renderMembers();
+}
 
 function spotsTaken(classId){
   return bookings.filter(b => b.classId === classId).length;
@@ -454,7 +479,6 @@ function renderMembers(){
       <td>${b.name}</td>
       <td>${c ? c.name : ""}</td>
       <td>${c ? c.day + " · " + c.time : ""}</td>
-      <td>${b.contact}</td>
     `;
     body.appendChild(tr);
   });
@@ -473,13 +497,41 @@ function closeModal(){
   document.getElementById("overlay").classList.remove("open");
   activeClassId = null;
 }
-function confirmBooking(){
+async function confirmBooking(){
   const name = document.getElementById("bookName").value.trim();
   const contact = document.getElementById("bookContact").value.trim();
   if(!name || !contact){
     showToast("Vui lòng nhập đầy đủ tên và liên hệ");
     return;
   }
+
+  if(SHARED){
+    // Máy chủ là nơi quyết định: khoá theo lớp, đếm chỗ, chặn đặt trùng tên.
+    const { data, error } = await db.rpc("book_class", {
+      p_class_id: activeClassId, p_name: name, p_contact: contact,
+    });
+    if(error){
+      showToast("Không kết nối được — vui lòng thử lại");
+      return;
+    }
+    if(!data.ok){
+      if(data.error === "full"){
+        showToast("Lớp này vừa đầy chỗ");
+        closeModal();
+      }else if(data.error === "duplicate"){
+        showToast("Tên này đã đặt lớp này rồi");
+      }else{
+        showToast("Thông tin chưa hợp lệ — kiểm tra lại tên và liên hệ");
+      }
+      await refresh();
+      return;
+    }
+    closeModal();
+    await refresh();
+    showToast("Đặt lớp thành công!");
+    return;
+  }
+
   if(spotsTaken(activeClassId) >= CAPACITY){
     showToast("Lớp này vừa đầy chỗ");
     closeModal();
@@ -506,9 +558,20 @@ document.getElementById("overlay").addEventListener("click", (e) => {
   if(e.target.id === "overlay") closeModal();
 });
 
-renderHeroPreview();
-renderSchedule();
-renderMembers();
+document.getElementById("modeNote").textContent = SHARED
+  ? "Chỗ trống hiển thị theo thời gian thực và dùng chung cho tất cả mọi người. Lượt đặt áp dụng cho buổi gần nhất của lớp trong tuần."
+  : "Bản xem trước: lượt đặt lớp chỉ lưu trên trình duyệt này. Để bật đặt lớp dùng chung, nối Supabase theo hướng dẫn trong README.md.";
+document.getElementById("membersLead").textContent = SHARED
+  ? "Ai đã giữ chỗ cho các buổi sắp diễn ra."
+  : "Danh sách cập nhật theo các lượt đặt lớp trên trình duyệt này.";
+
+refresh();
+if(SHARED){
+  setInterval(refresh, 60000);
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) refresh();
+  });
+}
 </script>
 
 </body>
