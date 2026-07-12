@@ -373,8 +373,8 @@ const classes = [
 // Dán Project URL và anon key từ Supabase → Settings → API vào 2 dòng dưới
 // (xem README.md). Để trống thì trang chạy ở chế độ demo: lượt đặt chỉ lưu
 // trên trình duyệt của từng người.
-const SUPABASE_URL = "";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL = "https://cunslraiaduiudvttwqj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_6-KqJOC83PUK-OFFgWtOUA_cN-mf4vf";
 
 const SHARED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const db = SHARED ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
