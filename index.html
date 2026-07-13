@@ -48,7 +48,9 @@
     background:rgba(255,255,255,0.94);
     backdrop-filter:blur(8px);
     border-bottom:1px solid var(--border);
+    transition:box-shadow .25s ease;
   }
+  header.scrolled{box-shadow:0 6px 20px rgba(0,0,0,0.07);}
   .nav{
     max-width:1140px;margin:0 auto;padding:16px 20px;
     display:flex;align-items:center;justify-content:space-between;
@@ -193,7 +195,26 @@
     background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;
     font-weight:700;font-size:13px;display:none;z-index:200;
   }
-  .toast.show{display:block;}
+  .toast.show{display:block;animation:toast-in .25s ease;}
+  @keyframes toast-in{from{opacity:0;transform:translate(-50%,12px);}}
+  .overlay.open .modal{animation:pop .22s ease;}
+  @keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px);}}
+
+  /* Hiện dần khi cuộn tới */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  .reveal-fade{opacity:0;transition:opacity .6s ease;}
+  .reveal-fade.in{opacity:1;}
+  /* Thẻ nhấc nhẹ khi rê chuột (một rule transition chung để không đè nhau) */
+  .about-card,.price-card,.class-card{transition:opacity .6s ease,transform .22s ease,box-shadow .22s ease;}
+  @media (hover:hover){
+    .about-card:hover,.price-card:hover,.class-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(0,0,0,0.08);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal,.reveal-fade{opacity:1;transform:none;transition:none;}
+    .toast.show,.overlay.open .modal{animation:none;}
+  }
 
   @media(max-width:1000px){
     /* Header có thể xuống 2 hàng ở cỡ tablet → đệm cuộn sâu hơn */
@@ -615,6 +636,29 @@ document.getElementById("modeNote").textContent = SHARED
 document.getElementById("membersLead").textContent = SHARED
   ? "Ai đã giữ chỗ cho các buổi sắp diễn ra."
   : "Danh sách cập nhật theo các lượt đặt lớp trên trình duyệt này.";
+
+// ==== Hiệu ứng ====
+// Thanh menu đổ bóng khi cuộn
+const headerEl = document.querySelector("header");
+addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY > 8), {passive:true});
+
+// Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
+// Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *");
+const fadeEls = document.querySelectorAll(".about-card, .price-card");
+slideEls.forEach(el => el.classList.add("reveal"));
+fadeEls.forEach(el => el.classList.add("reveal-fade"));
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(!e.isIntersecting) return;
+    const el = e.target;
+    const idx = el.classList.contains("reveal-fade")
+      ? [...el.parentElement.children].indexOf(el) : 0;
+    setTimeout(() => el.classList.add("in"), Math.min(idx, 3) * 90);
+    io.unobserve(el);
+  });
+}, {threshold: 0.12});
+[...slideEls, ...fadeEls].forEach(el => io.observe(el));
 
 refresh();
 if(SHARED){
