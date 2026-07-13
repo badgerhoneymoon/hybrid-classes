@@ -42,8 +42,29 @@
   .err{color:var(--danger);font-size:13px;font-weight:600;margin:10px 0 0;display:none;}
 
   .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:26px;}
-  .toolbar h1{font-size:clamp(24px,4vw,34px);margin:0;}
   .toolbar .actions{display:flex;gap:8px;}
+  .tabs{display:flex;gap:8px;}
+  .tab{
+    padding:11px 22px;border-radius:999px;border:1px solid var(--border);background:transparent;
+    font-weight:700;font-size:12px;cursor:pointer;font-family:'Inter';
+    text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);
+  }
+  .tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .chip.ok{background:#e7f5ee;color:var(--success);}
+  .chip.warn{background:#fbf1df;color:#a8720f;}
+  .chip.bad{background:#fbe9e7;color:var(--danger);}
+
+  .member-form{
+    background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;
+    padding:18px;margin:14px 0 24px;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;
+  }
+  .member-form label{display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+  .member-form input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:16px;}
+  .member-form input:focus{outline:none;border-color:var(--ink);}
+  .member-form .form-actions{grid-column:1/-1;display:flex;gap:10px;}
 
   .summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:34px;}
   .sum-card{border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
@@ -56,6 +77,7 @@
   .day-title::before{content:"";width:22px;height:2px;background:var(--accent-gold);display:inline-block;}
   .day-title .past-tag{font-size:10px;color:var(--ink-soft);letter-spacing:1px;border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
   .past{opacity:0.55;}
+  #bookingList,#memberList{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:14px;}
   th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
   th{color:var(--ink-soft);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;}
@@ -67,6 +89,7 @@
   .toast.show{display:block;}
   @media(max-width:640px){
     th:nth-child(4),td:nth-child(4){display:none;}
+    .members-table th:nth-child(3),.members-table td:nth-child(3){display:none;}
   }
 </style>
 </head>
@@ -93,14 +116,37 @@
 
   <div id="adminView" style="display:none;">
     <div class="toolbar">
-      <h1>Lượt đặt chỗ</h1>
+      <div class="tabs">
+        <button class="tab active" id="tabBookings" onclick="showTab('bookings')">Lượt đặt chỗ</button>
+        <button class="tab" id="tabMembers" onclick="showTab('members')">Gói tập</button>
+      </div>
       <div class="actions">
-        <button class="btn btn-ghost" onclick="loadData()">Làm mới</button>
+        <button class="btn btn-ghost" onclick="refreshAll()">Làm mới</button>
         <button class="btn btn-ghost" onclick="logout()">Đăng xuất</button>
       </div>
     </div>
-    <div class="summary" id="summary"></div>
-    <div id="bookingList"></div>
+
+    <div id="bookingsView">
+      <div class="summary" id="summary"></div>
+      <div id="bookingList"></div>
+    </div>
+
+    <div id="membersView" style="display:none;">
+      <button class="btn btn-primary" onclick="toggleMemberForm()">+ Thêm thành viên</button>
+      <div class="member-form" id="memberForm" style="display:none;">
+        <div><label for="mName">Tên *</label><input type="text" id="mName" placeholder="Nguyễn Văn A"></div>
+        <div><label for="mContact">SĐT / Email</label><input type="text" id="mContact" placeholder="09xx xxx xxx"></div>
+        <div><label for="mNote">Gói / Ghi chú</label><input type="text" id="mNote" placeholder="Tháng đầu 1.000.000đ"></div>
+        <div><label for="mStart">Ngày bắt đầu</label><input type="date" id="mStart"></div>
+        <div><label for="mExpire">Hết hạn</label><input type="date" id="mExpire"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="addMember()">Lưu thành viên</button>
+          <button class="btn btn-ghost" onclick="toggleMemberForm()">Huỷ</button>
+        </div>
+      </div>
+      <div class="summary" id="memberSummary" style="margin-top:20px;"></div>
+      <div id="memberList"></div>
+    </div>
   </div>
 </main>
 
@@ -122,8 +168,18 @@ const CLASS_INFO = {
 };
 
 let rows = [];
+let members = [];
 
 function pin(){ return sessionStorage.getItem("elevate_admin_pin") || ""; }
+
+function showTab(t){
+  document.getElementById("bookingsView").style.display = t === "bookings" ? "block" : "none";
+  document.getElementById("membersView").style.display = t === "members" ? "block" : "none";
+  document.getElementById("tabBookings").classList.toggle("active", t === "bookings");
+  document.getElementById("tabMembers").classList.toggle("active", t === "members");
+}
+
+function refreshAll(){ loadData(); loadMembers(); }
 
 function showToast(msg){
   const t = document.getElementById("toast");
@@ -184,6 +240,128 @@ async function loadData(){
   document.getElementById("loginCard").style.display = "none";
   document.getElementById("adminView").style.display = "block";
   render();
+  loadMembers();
+}
+
+// ==== GÓI TẬP ====
+
+function plusMonths(iso, n){
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1 + n, d)).toISOString().slice(0, 10);
+}
+
+function toggleMemberForm(){
+  const f = document.getElementById("memberForm");
+  const opening = f.style.display === "none";
+  f.style.display = opening ? "grid" : "none";
+  if(opening){
+    document.getElementById("mName").value = "";
+    document.getElementById("mContact").value = "";
+    document.getElementById("mNote").value = "";
+    document.getElementById("mStart").value = todayVN();
+    document.getElementById("mExpire").value = plusMonths(todayVN(), 1);
+    document.getElementById("mName").focus();
+  }
+}
+
+async function loadMembers(){
+  const { data, error } = await db.rpc("admin_list_members", { p_pin: pin() });
+  if(error){
+    if(!(error.message || "").includes("unauthorized")){
+      document.getElementById("memberList").innerHTML =
+        '<div class="empty">Phần Gói tập chưa được cài trên máy chủ — chạy file supabase-members.sql trong Supabase SQL Editor (xem README).</div>';
+    }
+    return;
+  }
+  members = data || [];
+  renderMembersList();
+}
+
+function memberStatus(expiresOn){
+  const days = Math.round((new Date(expiresOn) - new Date(todayVN())) / 86400000);
+  if(days < 0)  return {cls:"bad",  label:"Hết hạn " + (-days) + " ngày", days};
+  if(days === 0) return {cls:"warn", label:"Hết hạn hôm nay", days};
+  if(days <= 7) return {cls:"warn", label:"Còn " + days + " ngày", days};
+  return {cls:"ok", label:"Còn " + days + " ngày", days};
+}
+
+function renderMembersList(){
+  const sum = document.getElementById("memberSummary");
+  const list = document.getElementById("memberList");
+  sum.innerHTML = "";
+  list.innerHTML = "";
+
+  if(!members.length){
+    list.innerHTML = '<div class="empty">Chưa có thành viên nào — bấm "+ Thêm thành viên" khi có người đăng ký gói.</div>';
+    return;
+  }
+
+  const counts = {ok:0, warn:0, bad:0};
+  members.forEach(m => counts[memberStatus(m.expires_on).cls]++);
+  sum.innerHTML = `
+    <div class="sum-card"><div class="cls">Còn hạn</div><div class="cnt">${counts.ok}</div><div class="when">trên 7 ngày</div></div>
+    <div class="sum-card"><div class="cls">Sắp hết hạn</div><div class="cnt" style="color:#a8720f;">${counts.warn}</div><div class="when">trong 7 ngày tới</div></div>
+    <div class="sum-card"><div class="cls">Đã hết hạn</div><div class="cnt ${counts.bad ? "full" : ""}">${counts.bad}</div><div class="when">cần liên hệ gia hạn</div></div>`;
+
+  const table = document.createElement("table");
+  table.className = "members-table";
+  table.innerHTML = `<thead><tr><th>Tên</th><th>Liên hệ</th><th>Gói / Ghi chú</th><th>Bắt đầu</th><th>Hết hạn</th><th></th></tr></thead>`;
+  const tbody = document.createElement("tbody");
+  members.forEach(m => {
+    const st = memberStatus(m.expires_on);
+    const contactLink = /^[0-9+ ]+$/.test(m.contact)
+      ? `<a href="tel:${m.contact.replace(/ /g,"")}">${m.contact}</a>` : escapeHtml(m.contact);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><b>${escapeHtml(m.name)}</b></td>
+      <td class="contact">${contactLink}</td>
+      <td style="color:var(--ink-soft);font-size:13px;">${escapeHtml(m.note)}</td>
+      <td style="color:var(--ink-soft);font-size:12px;">${fmtDate(m.started_on)}</td>
+      <td>${fmtDate(m.expires_on)}<br><span class="chip ${st.cls}">${st.label}</span></td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="btn btn-ghost" style="padding:7px 14px;font-size:11px;">+1 tháng</button>
+        <button class="btn btn-danger">Xoá</button>
+      </td>`;
+    tr.querySelector(".btn-ghost").onclick = () => extendMember(m);
+    tr.querySelector(".btn-danger").onclick = () => removeMember(m);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  list.appendChild(table);
+}
+
+async function addMember(){
+  const name = document.getElementById("mName").value.trim();
+  const contact = document.getElementById("mContact").value.trim();
+  const note = document.getElementById("mNote").value.trim();
+  const started = document.getElementById("mStart").value;
+  const expires = document.getElementById("mExpire").value;
+  if(!name){ showToast("Nhập tên thành viên"); return; }
+  if(!started || !expires){ showToast("Chọn ngày bắt đầu và ngày hết hạn"); return; }
+  const { data, error } = await db.rpc("admin_add_member", {
+    p_pin: pin(), p_name: name, p_contact: contact, p_note: note,
+    p_started_on: started, p_expires_on: expires,
+  });
+  if(error || !data.ok){ showToast("Không lưu được — thử lại"); return; }
+  toggleMemberForm();
+  showToast("Đã thêm " + name);
+  await loadMembers();
+}
+
+async function extendMember(m){
+  if(!confirm(`Gia hạn thêm 1 tháng cho "${m.name}"?`)) return;
+  const { data, error } = await db.rpc("admin_extend_member", { p_pin: pin(), p_id: m.id, p_months: 1 });
+  if(error || !data.ok){ showToast("Không gia hạn được — thử lại"); return; }
+  showToast("Hạn mới: " + fmtDate(data.expires_on));
+  await loadMembers();
+}
+
+async function removeMember(m){
+  if(!confirm(`Xoá thành viên "${m.name}" khỏi danh sách gói tập?`)) return;
+  const { data, error } = await db.rpc("admin_delete_member", { p_pin: pin(), p_id: m.id });
+  if(error){ showToast("Không xoá được — thử lại"); return; }
+  showToast(data && data.deleted ? "Đã xoá" : "Thành viên này đã bị xoá trước đó");
+  await loadMembers();
 }
 
 function render(){

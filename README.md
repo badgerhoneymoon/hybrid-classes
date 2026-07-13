@@ -55,6 +55,16 @@ on conflict (id) do update set pin_hash = excluded.pin_hash;
 được băm (bcrypt) trước khi lưu và **không bao giờ** nằm trong code/repo;
 kiểm tra PIN diễn ra ở máy chủ nên người không có mã không xem được gì.
 
+### Tab "Gói tập" — theo dõi hạn thành viên
+
+Cài một lần: SQL Editor → dán toàn bộ `supabase-members.sql` → **Run**
+(chạy sau `supabase-admin.sql` vì dùng chung hàm kiểm tra PIN).
+
+Trong trang quản trị, tab **Gói tập** cho phép: thêm thành viên khi họ đóng
+tiền (tên, liên hệ, gói, ngày bắt đầu → hết hạn), xem ai **sắp hết hạn trong
+7 ngày** (vàng) hay **đã hết hạn** (đỏ), gia hạn nhanh **+1 tháng**, và xoá.
+Dữ liệu nằm trong bảng `members`, chỉ đọc/ghi được khi có PIN.
+
 Ghi chú:
 
 - **anon key để công khai trong file là bình thường** — nó chỉ cho phép gọi
