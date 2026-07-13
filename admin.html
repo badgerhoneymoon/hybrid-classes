@@ -21,7 +21,7 @@
   header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
   .nav{max-width:900px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
   .logo{display:flex;flex-direction:column;line-height:1;}
-  .logo .word{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1px;}
+  .logo img{height:30px;width:auto;display:block;margin-bottom:5px;}
   .logo .sub{font-size:9px;letter-spacing:2px;color:var(--ink-soft);margin-top:2px;font-weight:600;}
   main{max-width:900px;margin:0 auto;padding:36px 20px 80px;}
   .btn{display:inline-block;padding:11px 22px;border-radius:999px;font-weight:700;font-size:12px;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;border:1px solid transparent;transition:transform .12s,opacity .12s;font-family:'Inter';}
@@ -36,7 +36,7 @@
   .login-card{max-width:380px;margin:60px auto;background:var(--bg-soft);border:1px solid var(--border);border-radius:16px;padding:32px;}
   .login-card h2{margin:0 0 6px;font-size:24px;}
   .login-card p{color:var(--ink-soft);font-size:13px;margin:0 0 20px;}
-  .login-card input{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:15px;margin-bottom:14px;}
+  .login-card input{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:16px;margin-bottom:14px;}
   .login-card input:focus{outline:none;border-color:var(--ink);}
   .login-card .btn{width:100%;text-align:center;}
   .err{color:var(--danger);font-size:13px;font-weight:600;margin:10px 0 0;display:none;}
@@ -75,7 +75,7 @@
 <header>
   <div class="nav">
     <div class="logo">
-      <div class="word">ELEVATE</div>
+      <img src="media/logo-dark.png" alt="Hybrid Training Da Nang">
       <div class="sub">QUẢN TRỊ LỚP HỌC</div>
     </div>
     <a href="index.html" style="font-size:13px;color:var(--ink-soft);font-weight:600;text-decoration:none;">← Trang đặt lớp</a>
@@ -113,12 +113,12 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CAPACITY = 8;
 const CLASS_INFO = {
-  mon1: {label:"Thứ 2 · 17:00", name:"Full Body Strength"},
-  mon2: {label:"Thứ 2 · 18:15", name:"Full Body Strength"},
-  wed1: {label:"Thứ 4 · 17:00", name:"Upper Body Push"},
-  wed2: {label:"Thứ 4 · 18:15", name:"Upper Body Push"},
-  fri1: {label:"Thứ 6 · 17:00", name:"Lower Body Squat"},
-  fri2: {label:"Thứ 6 · 18:15", name:"Lower Body Squat"},
+  mon1: {label:"Thứ 2 · 17:00", name:"Sức mạnh toàn thân"},
+  mon2: {label:"Thứ 2 · 18:15", name:"Sức mạnh toàn thân"},
+  wed1: {label:"Thứ 4 · 17:00", name:"Sức mạnh thân trên"},
+  wed2: {label:"Thứ 4 · 18:15", name:"Sức mạnh thân trên"},
+  fri1: {label:"Thứ 6 · 17:00", name:"Sức mạnh thân dưới"},
+  fri2: {label:"Thứ 6 · 18:15", name:"Sức mạnh thân dưới"},
 };
 
 let rows = [];
