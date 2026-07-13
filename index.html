@@ -190,6 +190,18 @@
   .field input:focus{outline:none;border-color:var(--ink);}
   .modal-actions{display:flex;gap:10px;margin-top:20px;}
   .modal-actions .btn{flex:1;}
+  .check-box{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:30px;max-width:540px;}
+  .check-box h3{margin:0 0 6px;font-size:18px;}
+  .check-box p{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
+  .check-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .check-row input{flex:1;min-width:190px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink);font-size:16px;}
+  .check-row input:focus{outline:none;border-color:var(--ink);}
+  #checkResult{margin-top:14px;font-size:14px;display:none;line-height:1.7;}
+  .chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .chip.ok{background:#e7f5ee;color:var(--success);}
+  .chip.warn{background:#fbf1df;color:#a8720f;}
+  .chip.bad{background:#fbe9e7;color:var(--danger);}
+
   .toast{
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
     background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;
@@ -360,6 +372,16 @@
     <tbody id="memberTableBody"></tbody>
   </table>
   <p id="noMembers" class="lead" style="display:none;margin-top:16px;">Chưa có ai đặt lớp — hãy là người đầu tiên ở mục Lịch lớp phía trên.</p>
+
+  <div class="check-box" id="checkBox">
+    <h3>Kiểm tra gói tập của bạn</h3>
+    <p>Nhập SĐT hoặc email đã đăng ký với phòng tập để xem ngày đăng ký và hạn gói.</p>
+    <div class="check-row">
+      <input type="text" id="checkContact" placeholder="09xx xxx xxx" autocomplete="tel">
+      <button class="btn btn-primary" onclick="checkMembership()">Kiểm tra</button>
+    </div>
+    <div id="checkResult"></div>
+  </div>
 </section>
 
 <section id="gia">
@@ -440,6 +462,17 @@
     </div>
   </div>
 </div>
+<div class="overlay" id="memberOverlay">
+  <div class="modal">
+    <h3 id="memberWarnTitle">Gói tập sắp hết hạn</h3>
+    <div class="sub" id="memberWarnMsg" style="margin-bottom:0;"></div>
+    <div class="modal-actions">
+      <a class="btn btn-ghost" href="tel:+84377429026" style="text-align:center;">Gọi gia hạn</a>
+      <button class="btn btn-primary" onclick="closeMemberWarn()">Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -601,6 +634,7 @@ async function confirmBooking(){
     closeModal();
     await refresh();
     showToast("Đặt lớp thành công!");
+    maybeWarnMembership(data.member);
     return;
   }
 
@@ -619,6 +653,59 @@ async function confirmBooking(){
   showToast("Đặt lớp thành công!");
 }
 
+// ==== GÓI TẬP CỦA HỌC VIÊN ====
+
+function todayVN(){
+  return new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh"}).format(new Date());
+}
+function fmtD(iso){ const [y,m,d] = iso.split("-"); return `${d}/${m}/${y}`; }
+function daysLeft(expiresOn){
+  return Math.round((new Date(expiresOn) - new Date(todayVN())) / 86400000);
+}
+function escapeText(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function closeMemberWarn(){ document.getElementById("memberOverlay").classList.remove("open"); }
+
+// Popup nhắc gia hạn sau khi đặt lớp — chỉ hiện khi gói còn ≤7 ngày hoặc đã hết hạn
+function maybeWarnMembership(m){
+  if(!m || m.days_left == null || m.days_left > 7) return;
+  const title = document.getElementById("memberWarnTitle");
+  const msg = document.getElementById("memberWarnMsg");
+  if(m.days_left < 0){
+    title.textContent = "Gói tập đã hết hạn";
+    msg.textContent = `Lịch tập của bạn đã được ghi nhận. Lưu ý: gói tập của bạn đã hết hạn ngày ${fmtD(m.expires_on)} — liên hệ phòng tập để gia hạn nhé!`;
+  }else if(m.days_left === 0){
+    title.textContent = "Gói tập hết hạn hôm nay";
+    msg.textContent = "Đặt lớp thành công! Hôm nay là ngày cuối của gói tập — gia hạn để giữ nhịp tập nhé.";
+  }else{
+    title.textContent = "Gói tập sắp hết hạn";
+    msg.textContent = `Đặt lớp thành công! Gói tập của bạn còn ${m.days_left} ngày (hết hạn ${fmtD(m.expires_on)}) — nhớ gia hạn để không gián đoạn.`;
+  }
+  setTimeout(() => document.getElementById("memberOverlay").classList.add("open"), 450);
+}
+
+// Học viên tra cứu gói tập bằng SĐT/email đã đăng ký
+async function checkMembership(){
+  const value = document.getElementById("checkContact").value.trim();
+  const out = document.getElementById("checkResult");
+  out.style.display = "block";
+  if(value.length < 5){ out.textContent = "Nhập SĐT hoặc email đầy đủ hơn."; return; }
+  out.textContent = "Đang kiểm tra…";
+  const { data, error } = await db.rpc("my_membership", { p_contact: value });
+  if(error){ out.textContent = "Không kết nối được — thử lại sau."; return; }
+  if(!data || !data.length){
+    out.textContent = "Chưa tìm thấy gói tập với thông tin này. Hãy dùng đúng SĐT/email đã đăng ký với phòng tập, hoặc liên hệ Elevate.";
+    return;
+  }
+  const m = data[0], dl = daysLeft(m.expires_on);
+  const chip = dl < 0 ? `<span class="chip bad">Hết hạn ${-dl} ngày trước</span>`
+    : dl <= 7 ? `<span class="chip warn">Còn ${dl} ngày</span>`
+    : `<span class="chip ok">Còn ${dl} ngày</span>`;
+  out.innerHTML = `<b>${escapeText(m.name)}</b> — thành viên từ ${fmtD(m.started_on)}.<br>Gói tập hết hạn <b>${fmtD(m.expires_on)}</b> ${chip}`;
+}
+
 function showToast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg;
@@ -629,6 +716,13 @@ function showToast(msg){
 document.getElementById("overlay").addEventListener("click", (e) => {
   if(e.target.id === "overlay") closeModal();
 });
+document.getElementById("memberOverlay").addEventListener("click", (e) => {
+  if(e.target.id === "memberOverlay") closeMemberWarn();
+});
+document.getElementById("checkContact").addEventListener("keydown", (e) => {
+  if(e.key === "Enter") checkMembership();
+});
+if(!SHARED) document.getElementById("checkBox").style.display = "none";
 
 document.getElementById("modeNote").textContent = SHARED
   ? "Chỗ trống hiển thị theo thời gian thực và dùng chung cho tất cả mọi người. Lượt đặt áp dụng cho buổi gần nhất của lớp trong tuần."
