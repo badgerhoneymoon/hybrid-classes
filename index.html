@@ -668,9 +668,9 @@ function escapeText(s){
 
 function closeMemberWarn(){ document.getElementById("memberOverlay").classList.remove("open"); }
 
-// Popup nhắc gia hạn sau khi đặt lớp — chỉ hiện khi gói còn ≤7 ngày hoặc đã hết hạn
+// Popup nhắc gia hạn sau khi đặt lớp — chỉ hiện khi gói còn dưới 3 ngày hoặc đã hết hạn
 function maybeWarnMembership(m){
-  if(!m || m.days_left == null || m.days_left > 7) return;
+  if(!m || m.days_left == null || m.days_left >= 3) return;
   const title = document.getElementById("memberWarnTitle");
   const msg = document.getElementById("memberWarnMsg");
   if(m.days_left < 0){
