@@ -15,7 +15,7 @@ create table if not exists public.admin_config (
 alter table public.admin_config enable row level security;
 
 create or replace function public.admin_check_pin(p_pin text)
-returns boolean language plpgsql stable security definer set search_path = public as $$
+returns boolean language plpgsql stable security definer set search_path = public, extensions as $$
 declare h text;
 begin
   select pin_hash into h from admin_config where id;
@@ -26,7 +26,7 @@ revoke all on function public.admin_check_pin(text) from public, anon, authentic
 -- Toàn bộ lượt đặt (kèm liên hệ) — chỉ khi PIN đúng. pg_sleep làm chậm dò mã.
 create or replace function public.admin_list_bookings(p_pin text)
 returns table (id uuid, class_id text, class_date date, name text, contact text, created_at timestamptz)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   perform pg_sleep(0.3);
   if not public.admin_check_pin(p_pin) then
@@ -41,7 +41,7 @@ end $$;
 
 -- Xoá một lượt đặt (trả chỗ trống lại cho lớp).
 create or replace function public.admin_delete_booking(p_pin text, p_id uuid)
-returns json language plpgsql security definer set search_path = public as $$
+returns json language plpgsql security definer set search_path = public, extensions as $$
 declare n int;
 begin
   perform pg_sleep(0.3);
