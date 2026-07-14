@@ -133,6 +133,13 @@
   .class-card .btn{width:100%;text-align:center;margin-top:6px;}
   .class-card .btn[disabled]{opacity:0.35;cursor:not-allowed;}
 
+  .facility-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .facility-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:14px;border:1px solid var(--border);display:block;}
+  .equip{margin-top:32px;}
+  .equip h3{font-size:18px;margin:0 0 6px;}
+  .equip p{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
+  .equip-badges{display:flex;flex-wrap:wrap;gap:8px;}
+
   .coach-grid{display:grid;grid-template-columns:minmax(240px,340px) 1fr;gap:36px;align-items:start;}
   .coach-photo{width:100%;border-radius:16px;border:1px solid var(--border);display:block;}
   .coach-role{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-gold);font-weight:700;margin-bottom:14px;}
@@ -287,6 +294,7 @@
         <li><a href="#lich">Lịch lớp</a></li>
         <li><a href="#gioithieu">Giới thiệu</a></li>
         <li><a href="#coach">Coach</a></li>
+        <li><a href="#khonggian">Không gian</a></li>
         <li><a href="#thanhvien">Thành viên</a></li>
         <li><a href="#gia">Bảng giá</a></li>
         <li><a href="#lienhe">Liên hệ</a></li>
@@ -370,6 +378,39 @@
         <span class="badge">Dinh dưỡng cơ bản</span>
         <span class="badge">Top-4 nhóm tuổi · Sunrise Sprint Triathlon 2026 (Sub 1:18)</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="khonggian">
+  <div class="eyebrow">Không gian</div>
+  <h2>Nhỏ gọn, nhưng có chủ đích</h2>
+  <p class="lead">Cơ sở của chúng tôi nhỏ gọn nhưng có chủ đích. Mọi góc đều hữu dụng — mang đến đúng dụng cụ và môi trường để bạn thể hiện tốt nhất.</p>
+  <div class="facility-grid">
+    <img src="media/space-1.webp" alt="Không gian tập luyện tại Hybrid Training Da Nang" loading="lazy">
+    <img src="media/space-2.webp" alt="Khu tạ và rack tập sức mạnh" loading="lazy">
+    <img src="media/space-3.webp" alt="Khu conditioning với máy chèo và xe đạp gió" loading="lazy">
+    <img src="media/space-4.webp" alt="Thảm cỏ kéo xe trượt sled" loading="lazy">
+  </div>
+  <div class="equip">
+    <h3>Danh sách thiết bị</h3>
+    <p>Chúng tôi giữ mọi thứ tối giản. Đủ những gì bạn cần, không thừa thứ gì.</p>
+    <div class="equip-badges">
+      <span class="badge">Hex Bar</span>
+      <span class="badge">Technique Barbell</span>
+      <span class="badge">Tạ đòn nam & nữ</span>
+      <span class="badge">Tạ tay đến 25kg</span>
+      <span class="badge">Tạ ấm đến 32kg</span>
+      <span class="badge">Bumper Plates</span>
+      <span class="badge">Crash Pads</span>
+      <span class="badge">Concept2 SkiErg</span>
+      <span class="badge">Concept2 Rower</span>
+      <span class="badge">Impulse Treadmill</span>
+      <span class="badge">Assault Air Bike</span>
+      <span class="badge">Wall Balls</span>
+      <span class="badge">Xe kéo & Thảm cỏ</span>
+      <span class="badge">GHD</span>
+      <span class="badge">Máy cáp</span>
     </div>
   </div>
 </section>
@@ -779,8 +820,8 @@ addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY >
 
 // Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
 // Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
-const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *");
-const fadeEls = document.querySelectorAll(".about-card, .price-card");
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, .equip");
+const fadeEls = document.querySelectorAll(".about-card, .price-card, .facility-grid img");
 slideEls.forEach(el => el.classList.add("reveal"));
 fadeEls.forEach(el => el.classList.add("reveal-fade"));
 const io = new IntersectionObserver(entries => {
