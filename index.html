@@ -181,6 +181,16 @@
   }
   .modal h3{margin:0 0 4px;font-size:20px;}
   .modal .sub{color:var(--ink-soft);font-size:13px;margin-bottom:18px;text-transform:none;font-family:'Inter';letter-spacing:0;}
+  .pick{
+    display:flex;align-items:center;gap:11px;padding:10px 13px;
+    border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
+    cursor:pointer;background:var(--bg-soft);
+  }
+  .pick input{accent-color:var(--ink);width:18px;height:18px;flex-shrink:0;}
+  .pick .meta{font-size:13px;font-weight:700;line-height:1.4;}
+  .pick .meta small{color:var(--ink-soft);font-weight:500;}
+  .pick.disabled{opacity:0.45;cursor:not-allowed;}
+  #classChecks{margin-bottom:16px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
   .field input{
@@ -206,6 +216,7 @@
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
     background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;
     font-weight:700;font-size:13px;display:none;z-index:200;
+    max-width:92vw;text-align:center;
   }
   .toast.show{display:block;animation:toast-in .25s ease;}
   @keyframes toast-in{from{opacity:0;transform:translate(-50%,12px);}}
@@ -447,7 +458,8 @@
 <div class="overlay" id="overlay">
   <div class="modal">
     <h3 id="modalTitle">Đặt lớp</h3>
-    <div class="sub" id="modalSub"></div>
+    <div class="sub" id="modalSub">Chọn các buổi bạn muốn giữ chỗ trong tuần — thông tin chỉ cần điền một lần.</div>
+    <div id="classChecks"></div>
     <div class="field">
       <label for="bookName">Họ và tên</label>
       <input type="text" id="bookName" placeholder="Nguyễn Văn A">
@@ -458,7 +470,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Huỷ</button>
-      <button class="btn btn-primary" onclick="confirmBooking()">Xác nhận đặt lớp</button>
+      <button class="btn btn-primary" id="confirmBtn" onclick="confirmBooking()">Xác nhận đặt lớp</button>
     </div>
   </div>
 </div>
@@ -503,7 +515,15 @@ function saveBookings(list){
 }
 
 let bookings = SHARED ? [] : loadBookings();
-let activeClassId = null;
+
+// Nhớ tên + liên hệ trên trình duyệt để lần sau khỏi nhập lại
+function loadProfile(){
+  try{ return JSON.parse(localStorage.getItem("elevate_profile") || "{}"); }
+  catch(e){ return {}; }
+}
+function saveProfile(name, contact){
+  localStorage.setItem("elevate_profile", JSON.stringify({name, contact}));
+}
 
 // Chế độ dùng chung: tải danh sách đặt chỗ (chỉ tên + lớp, không có liên hệ)
 // cho các buổi sắp diễn ra, rồi vẽ lại toàn trang.
@@ -590,67 +610,88 @@ function renderMembers(){
 }
 
 function openModal(classId){
-  activeClassId = classId;
-  const c = classes.find(cl => cl.id === classId);
-  document.getElementById("modalTitle").textContent = "Đặt lớp: " + c.name;
-  document.getElementById("modalSub").textContent = c.day + " · " + c.time;
-  document.getElementById("bookName").value = "";
-  document.getElementById("bookContact").value = "";
+  // Danh sách buổi trong tuần để tick chọn — buổi bấm vào được chọn sẵn
+  const checks = document.getElementById("classChecks");
+  checks.innerHTML = "";
+  classes.forEach(c => {
+    const left = CAPACITY - spotsTaken(c.id);
+    const full = left <= 0;
+    const row = document.createElement("label");
+    row.className = "pick" + (full ? " disabled" : "");
+    row.innerHTML = `
+      <input type="checkbox" value="${c.id}" ${full ? "disabled" : ""} ${c.id === classId && !full ? "checked" : ""}>
+      <span class="meta">${c.day} · ${c.time} — ${c.name}<br><small>${full ? "Đã đầy" : "còn " + left + " chỗ trống"}</small></span>`;
+    checks.appendChild(row);
+  });
+  const prof = loadProfile();
+  document.getElementById("bookName").value = prof.name || "";
+  document.getElementById("bookContact").value = prof.contact || "";
   document.getElementById("overlay").classList.add("open");
 }
 function closeModal(){
   document.getElementById("overlay").classList.remove("open");
-  activeClassId = null;
 }
 async function confirmBooking(){
   const name = document.getElementById("bookName").value.trim();
   const contact = document.getElementById("bookContact").value.trim();
+  const picked = [...document.querySelectorAll("#classChecks input:checked")].map(i => i.value);
+  if(!picked.length){
+    showToast("Chọn ít nhất một buổi");
+    return;
+  }
   if(!name || !contact){
     showToast("Vui lòng nhập đầy đủ tên và liên hệ");
     return;
   }
+  saveProfile(name, contact);
 
   if(SHARED){
-    // Máy chủ là nơi quyết định: khoá theo lớp, đếm chỗ, chặn đặt trùng tên.
-    const { data, error } = await db.rpc("book_class", {
-      p_class_id: activeClassId, p_name: name, p_contact: contact,
-    });
-    if(error){
-      showToast("Không kết nối được — vui lòng thử lại");
-      return;
-    }
-    if(!data.ok){
-      if(data.error === "full"){
-        showToast("Lớp này vừa đầy chỗ");
-        closeModal();
-      }else if(data.error === "duplicate"){
-        showToast("Tên này đã đặt lớp này rồi");
-      }else{
-        showToast("Thông tin chưa hợp lệ — kiểm tra lại tên và liên hệ");
+    // Đặt lần lượt từng buổi — máy chủ vẫn khoá sĩ số và chặn trùng tên cho từng lớp
+    const btn = document.getElementById("confirmBtn");
+    btn.disabled = true; btn.textContent = "Đang giữ chỗ…";
+    const okDays = [], fails = [];
+    let memberInfo = null;
+    for(const id of picked){
+      const c = classes.find(x => x.id === id);
+      const { data, error } = await db.rpc("book_class", {
+        p_class_id: id, p_name: name, p_contact: contact,
+      });
+      if(error){ fails.push(c.day + ": lỗi kết nối"); continue; }
+      if(!data.ok){
+        fails.push(c.day + (data.error === "full" ? ": vừa đầy chỗ"
+          : data.error === "duplicate" ? ": bạn đã đặt rồi" : ": thông tin chưa hợp lệ"));
+        continue;
       }
-      await refresh();
-      return;
+      okDays.push(c.day);
+      if(data.member) memberInfo = data.member;
     }
+    btn.disabled = false; btn.textContent = "Xác nhận đặt lớp";
     closeModal();
     await refresh();
-    showToast("Đặt lớp thành công!");
-    maybeWarnMembership(data.member);
+    if(okDays.length && !fails.length){
+      showToast(okDays.length > 1 ? `Đã giữ chỗ ${okDays.length} buổi: ${okDays.join(", ")}!` : "Đặt lớp thành công!");
+    }else if(okDays.length){
+      showToast(`Đã đặt ${okDays.join(", ")} — ${fails.join(" · ")}`);
+    }else{
+      showToast(fails.join(" · "));
+    }
+    maybeWarnMembership(memberInfo);
     return;
   }
 
-  if(spotsTaken(activeClassId) >= CAPACITY){
-    showToast("Lớp này vừa đầy chỗ");
-    closeModal();
-    renderSchedule();
-    return;
-  }
-  bookings.push({classId: activeClassId, name, contact, ts: Date.now()});
+  const okDays = [], fails = [];
+  picked.forEach(id => {
+    const c = classes.find(x => x.id === id);
+    if(spotsTaken(id) >= CAPACITY){ fails.push(c.day + ": vừa đầy chỗ"); return; }
+    bookings.push({classId: id, name, contact, ts: Date.now()});
+    okDays.push(c.day);
+  });
   saveBookings(bookings);
   closeModal();
   renderSchedule();
   renderMembers();
   renderHeroPreview();
-  showToast("Đặt lớp thành công!");
+  showToast(okDays.length ? `Đã giữ chỗ: ${okDays.join(", ")}` : fails.join(" · "));
 }
 
 // ==== GÓI TẬP CỦA HỌC VIÊN ====
