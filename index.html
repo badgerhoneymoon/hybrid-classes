@@ -135,10 +135,6 @@
 
   .facility-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
   .facility-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:14px;border:1px solid var(--border);display:block;}
-  .equip{margin-top:32px;}
-  .equip h3{font-size:18px;margin:0 0 6px;}
-  .equip p{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
-  .equip-badges{display:flex;flex-wrap:wrap;gap:8px;}
 
   .coach-grid{display:grid;grid-template-columns:minmax(240px,340px) 1fr;gap:36px;align-items:start;}
   .coach-photo{width:100%;border-radius:16px;border:1px solid var(--border);display:block;}
@@ -385,33 +381,12 @@
 <section id="khonggian">
   <div class="eyebrow">Không gian & Thiết bị</div>
   <h2>Thiết bị chuẩn thi đấu quốc tế</h2>
-  <p class="lead">Dàn thiết bị top-notch mà chưa phòng tập nào khác ở Đà Nẵng có: Concept2 SkiErg & Rower, Assault Air Bike, sled & turf... — đúng những gì vận động viên gặp ở các giải fitness racing thế giới như HYROX. Tập ở đây là tập bằng chuẩn thi đấu.</p>
+  <p class="lead">Dàn thiết bị cao cấp chuẩn quốc tế: Concept2 SkiErg & Rower, Assault Air Bike, sled & turf... — đúng những gì vận động viên gặp ở các giải fitness racing thế giới như HYROX. Tập ở đây là tập bằng chuẩn thi đấu.</p>
   <div class="facility-grid">
     <img src="media/space-1.webp" alt="Không gian tập luyện tại Hybrid Training Da Nang" loading="lazy">
     <img src="media/space-2.webp" alt="Khu tạ và rack tập sức mạnh" loading="lazy">
     <img src="media/space-3.webp" alt="Khu conditioning với máy chèo và xe đạp gió" loading="lazy">
     <img src="media/space-4.webp" alt="Thảm cỏ kéo xe trượt sled" loading="lazy">
-  </div>
-  <div class="equip">
-    <h3>Danh sách thiết bị</h3>
-    <p>Tối giản nhưng đúng chuẩn — mỗi món đều là thứ bạn sẽ gặp trên vạch xuất phát của một giải đấu.</p>
-    <div class="equip-badges">
-      <span class="badge">Hex Bar</span>
-      <span class="badge">Technique Barbell</span>
-      <span class="badge">Tạ đòn nam & nữ</span>
-      <span class="badge">Tạ tay đến 25kg</span>
-      <span class="badge">Tạ ấm đến 32kg</span>
-      <span class="badge">Bumper Plates</span>
-      <span class="badge">Crash Pads</span>
-      <span class="badge">Concept2 SkiErg</span>
-      <span class="badge">Concept2 Rower</span>
-      <span class="badge">Impulse Treadmill</span>
-      <span class="badge">Assault Air Bike</span>
-      <span class="badge">Wall Balls</span>
-      <span class="badge">Xe kéo & Thảm cỏ</span>
-      <span class="badge">GHD</span>
-      <span class="badge">Máy cáp</span>
-    </div>
   </div>
 </section>
 
@@ -820,7 +795,7 @@ addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY >
 
 // Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
 // Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
-const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, .equip");
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *");
 const fadeEls = document.querySelectorAll(".about-card, .price-card, .facility-grid img");
 slideEls.forEach(el => el.classList.add("reveal"));
 fadeEls.forEach(el => el.classList.add("reveal-fade"));
