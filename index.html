@@ -78,12 +78,21 @@
   .btn-ghost-dark:hover{border-color:#fff;}
 
   .hero{
+    position:relative;overflow:hidden;
     background:var(--hero-bg);color:#fff;
-    background-image:linear-gradient(rgba(6,6,8,0.78), rgba(6,6,8,0.88)),
-                      url("media/hero.webp");
-    background-size:cover;
-    background-position:center 28%;
   }
+  /* Video nền + ảnh chờ (hero.webp) hiển thị ngay trước khi video tải */
+  .hero-media{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:center 28%;
+    z-index:0;background:#000 center 28%/cover url("media/hero.webp");
+  }
+  /* Lớp phủ tối để chữ luôn đọc rõ trên video */
+  .hero::after{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(rgba(6,6,8,0.72), rgba(6,6,8,0.86));
+  }
+  .hero-inner{position:relative;z-index:2;}
   .hero-inner{max-width:1140px;margin:0 auto;padding:80px 20px 64px;text-align:center;}
   .hero h1{font-size:clamp(32px,5.5vw,58px);margin:0 0 18px;}
   .hero p{color:rgba(255,255,255,0.78);font-size:16px;max-width:560px;margin:0 auto;}
@@ -143,10 +152,22 @@
   .coach-certs{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
   @media(max-width:760px){.coach-grid{grid-template-columns:1fr;}}
 
-  .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
-  .about-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:22px;}
-  .about-card h3{margin:0 0 8px;font-size:18px;}
-  .about-card p{margin:0;color:var(--ink-soft);font-size:13px;}
+  .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+  .about-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:34px 22px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;}
+  .about-card h3{margin:0;font-size:19px;}
+
+  /* Hybrid Fitness Racing — dải nền đen tạo điểm nhấn */
+  .race{background:var(--hero-bg);color:#fff;max-width:none;padding:0;
+    background-image:linear-gradient(rgba(8,8,10,0.82),rgba(8,8,10,0.9)),url("media/hero.webp");
+    background-size:cover;background-position:center 30%;}
+  .race-inner{max-width:1140px;margin:0 auto;padding:72px 20px;}
+  .race .eyebrow{color:rgba(255,255,255,0.75);}
+  .race .eyebrow::before{background:var(--accent-gold);}
+  .race h2{font-size:clamp(28px,4.4vw,44px);margin:0 0 16px;max-width:720px;}
+  .race p{color:rgba(255,255,255,0.72);font-size:15px;max-width:620px;margin:0 0 16px;}
+  .race-tags{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 30px;}
+  .race-tag{border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;}
+  .race-tag b{color:var(--accent-gold);}
 
   table{width:100%;border-collapse:collapse;font-size:14px;}
   th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--border);}
@@ -292,6 +313,7 @@
         <li><a href="#gioithieu">Giới thiệu</a></li>
         <li><a href="#coach">Coach</a></li>
         <li><a href="#khonggian">Không gian</a></li>
+        <li><a href="#racing">Racing</a></li>
         <li><a href="#thanhvien">Thành viên</a></li>
         <li><a href="#gia">Bảng giá</a></li>
         <li><a href="#lienhe">Liên hệ</a></li>
@@ -302,6 +324,9 @@
 </header>
 
 <section class="hero" style="padding:0;max-width:none;">
+  <video class="hero-media" autoplay muted loop playsinline preload="auto" poster="media/hero.webp">
+    <source src="media/hero.mp4" type="video/mp4">
+  </video>
   <div class="hero-inner">
     <h1>Tập luyện nhóm nhỏ.<br>Kết quả rõ ràng.</h1>
     <p>Nhóm nhỏ 6–8 người, huấn luyện viên kèm sát, tập trung vào sức mạnh, sức bền và vận động lành mạnh. Lớp buổi chiều diễn ra Thứ 2 / Thứ 4 / Thứ 6.</p>
@@ -339,22 +364,10 @@
   <h2>Bốn trụ cột mỗi buổi tập</h2>
   <p class="lead">Mạnh mẽ — Linh hoạt — Bền bỉ — Khỏe mạnh.</p>
   <div class="about-grid">
-    <div class="about-card">
-      <h3>Sức mạnh</h3>
-      <p>Bài tập chính theo mẫu hình cố định mỗi giai đoạn, tăng tải dần, ưu tiên kỹ thuật.</p>
-    </div>
-    <div class="about-card">
-      <h3>Linh hoạt / Dẻo dai</h3>
-      <p>Khởi động động và bài kích hoạt đầu buổi giúp khớp vận động trơn tru, hạn chế chấn thương.</p>
-    </div>
-    <div class="about-card">
-      <h3>Sức bền</h3>
-      <p>Bài kết thúc buổi tập theo dạng EMOM / AMRAP / Tabata, phù hợp với chủ đề ngày hôm đó.</p>
-    </div>
-    <div class="about-card">
-      <h3>Sức khỏe toàn diện</h3>
-      <p>Bài phụ chú trọng chất lượng vận động và cân bằng cơ hai bên — khỏe cho cuộc sống hằng ngày, không chỉ trong phòng tập.</p>
-    </div>
+    <div class="about-card"><h3>Sức mạnh</h3></div>
+    <div class="about-card"><h3>Linh hoạt / Dẻo dai</h3></div>
+    <div class="about-card"><h3>Sức bền</h3></div>
+    <div class="about-card"><h3>Sức khỏe toàn diện</h3></div>
   </div>
 </section>
 
@@ -388,6 +401,21 @@
     <img src="media/space-2.webp" alt="Khu tạ và rack tập sức mạnh" loading="lazy">
     <img src="media/space-3.webp" alt="Khu conditioning với máy chèo và xe đạp gió" loading="lazy">
     <img src="media/space-4.webp" alt="Thảm cỏ kéo xe trượt sled" loading="lazy">
+  </div>
+</section>
+
+<section id="racing" class="race">
+  <div class="race-inner">
+    <div class="eyebrow">Hybrid Fitness Racing</div>
+    <h2>Tập để bước lên đường đua</h2>
+    <p>Hybrid fitness racing là xu hướng thi đấu đang bùng nổ toàn cầu — xen kẽ những đoạn chạy với các trạm thể lực như đẩy sled, SkiErg, chèo, wall ball. Chính xác là kiểu vận động chúng tôi rèn mỗi buổi: sức mạnh làm nền, sức bền giữ nhịp.</p>
+    <p>Tập ở Hybrid Training Da Nang là tập đúng thứ đường đua đòi hỏi — để đến ngày bạn muốn thử sức ở một chặng racing thật, cơ thể đã sẵn sàng.</p>
+    <div class="race-tags">
+      <span class="race-tag"><b>Chạy</b> + trạm thể lực</span>
+      <span class="race-tag">Sức mạnh <b>×</b> Sức bền</span>
+      <span class="race-tag">Chuẩn <b>HYROX</b></span>
+    </div>
+    <a href="#lich" class="btn btn-light">Bắt đầu tập luyện</a>
   </div>
 </section>
 
@@ -807,7 +835,7 @@ addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY >
 
 // Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
 // Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
-const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *");
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, #racing p, #racing .race-tags, #racing .btn");
 const fadeEls = document.querySelectorAll(".about-card, .price-card, .facility-grid img");
 slideEls.forEach(el => el.classList.add("reveal"));
 fadeEls.forEach(el => el.classList.add("reveal-fade"));
