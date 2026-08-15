@@ -392,7 +392,7 @@
 </header>
 
 <section class="hero" style="padding:0;max-width:none;">
-  <video class="hero-media" autoplay muted loop playsinline preload="auto" poster="media/hero.webp">
+  <video id="heroVideo" class="hero-media" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="media/hero.webp">
     <source src="media/hero.mp4" type="video/mp4">
   </video>
   <div class="hero-inner">
@@ -897,6 +897,20 @@ document.getElementById("membersLead").textContent = SHARED
   : "Danh sách cập nhật theo các lượt đặt lớp trên trình duyệt này.";
 
 // ==== Hiệu ứng ====
+// Video hero: iOS/Safari hay chặn autoplay — ép phát khi đã tắt tiếng, và
+// thử lại ở lần chạm/cuộn đầu tiên. Nếu vẫn bị chặn, ảnh poster (hero.webp)
+// vẫn hiển thị nên trang không bao giờ trống.
+(function(){
+  const v = document.getElementById("heroVideo");
+  if(!v) return;
+  v.muted = true; v.setAttribute("muted", "");
+  const tryPlay = () => { const p = v.play(); if(p) p.catch(() => {}); };
+  tryPlay();
+  v.addEventListener("loadeddata", tryPlay);
+  ["touchstart","click","scroll"].forEach(ev =>
+    addEventListener(ev, function once(){ tryPlay(); }, {once:true, passive:true}));
+})();
+
 // Thanh menu đổ bóng khi cuộn
 const headerEl = document.querySelector("header");
 addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY > 8), {passive:true});
