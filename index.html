@@ -508,9 +508,9 @@
 const CAPACITY = 8;
 
 const classes = [
-  {id:"mon2", day:"Thứ 2", time:"18:15", name:"Sức mạnh toàn thân", focus:"Kéo · Deadlift/Row", desc:"Sức mạnh toàn thân, trọng tâm vào chuỗi sau (deadlift, row)."},
-  {id:"wed2", day:"Thứ 4", time:"18:15", name:"Sức mạnh thân trên", focus:"Đẩy · Ngực/Vai", desc:"Sức mạnh thân trên, trọng tâm ép ngực/vai (bench, OHP)."},
-  {id:"fri2", day:"Thứ 6", time:"18:15", name:"Sức mạnh thân dưới", focus:"Squat · Chân", desc:"Sức mạnh thân dưới, trọng tâm squat/lunge."},
+  {id:"mon2", day:"Thứ 2", time:"18:15", name:"Hybrid Training"},
+  {id:"wed2", day:"Thứ 4", time:"18:15", name:"Hybrid Training"},
+  {id:"fri2", day:"Thứ 6", time:"18:15", name:"Hybrid Training"},
 ];
 
 // ==== CẤU HÌNH SUPABASE (đặt lớp dùng chung) ====
@@ -594,7 +594,6 @@ function renderSchedule(){
       <div class="day-label">${c.day}</div>
       <div class="time">${c.time}</div>
       <div class="name">${c.name}</div>
-      <div class="desc">${c.desc}<br><span class="badge">${c.focus}</span></div>
       <div class="spots ${spotsClass}">${spotsLabel}</div>
       <button class="btn ${left<=0?'btn-ghost':'btn-primary'}" ${left<=0?'disabled':''} onclick="openModal('${c.id}')">
         ${left<=0?'Hết chỗ':'Đặt lớp này'}
