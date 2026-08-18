@@ -189,20 +189,22 @@
   section h2{font-size:clamp(26px,4vw,38px);margin:0 0 14px;}
   section .lead{color:var(--ink-soft);margin:0 0 32px;font-size:15px;max-width:560px;}
 
-  .class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .class-card .day-label{
+  .class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+  .day-col{display:flex;flex-direction:column;gap:12px;}
+  .day-head{
     font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--ink);
-    font-weight:700;display:flex;align-items:center;gap:8px;
+    font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:2px;
   }
-  .class-card .day-label::before{content:"";width:18px;height:2px;background:var(--accent-gold);display:inline-block;}
+  .day-head::before{content:"";width:18px;height:2px;background:var(--accent-gold);display:inline-block;}
   .class-card{
     background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;
     display:flex;flex-direction:column;gap:10px;
     box-shadow:0 1px 2px rgba(0,0,0,0.03);
   }
+  .class-card.new-slot{border-style:dashed;background:var(--bg-soft);}
   .class-card .time{font-family:'Anton',sans-serif;font-size:26px;}
   .class-card .name{font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;}
-  .class-card .desc{color:var(--ink-soft);font-size:13px;flex-grow:1;}
+  .class-note{font-size:12px;color:var(--accent-gold);font-weight:600;line-height:1.4;}
   .spots{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
   .spots.ok{color:var(--success);}
   .spots.low{color:var(--accent-gold);}
@@ -355,10 +357,10 @@
     .stat-box{padding:14px 6px;border-radius:12px;}
     .stat-box .big{font-size:17px;}
     .stat-box .small{font-size:8px;letter-spacing:0.6px;}
-    /* 3 lớp đứng liền kề, vuốt ngang trên màn hình hẹp */
+    /* Mỗi ngày là một cột, vuốt ngang trên màn hình hẹp */
     .class-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:12px;padding-bottom:6px;}
     .class-grid::-webkit-scrollbar{display:none;}
-    .class-card{min-width:76%;scroll-snap-align:center;}
+    .day-col{min-width:78%;scroll-snap-align:center;}
 
     .coach-photo{max-width:340px;margin:0 auto;}
     th,td{padding:10px 8px;font-size:13px;}
@@ -598,9 +600,14 @@
 <script>
 const CAPACITY = 8;
 
+// Nhãn cho lớp 17:00 mới — chỉ mở khi đủ số người đặt trước.
+const NEW_SLOT_NOTE = "Lớp mới · mở khi đủ tối thiểu 3 người đặt trước";
 const classes = [
+  {id:"mon1", day:"Thứ 2", time:"17:00", name:"Hybrid Training", note:NEW_SLOT_NOTE},
   {id:"mon2", day:"Thứ 2", time:"18:15", name:"Hybrid Training"},
+  {id:"wed1", day:"Thứ 4", time:"17:00", name:"Hybrid Training", note:NEW_SLOT_NOTE},
   {id:"wed2", day:"Thứ 4", time:"18:15", name:"Hybrid Training"},
+  {id:"fri1", day:"Thứ 6", time:"17:00", name:"Hybrid Training", note:NEW_SLOT_NOTE},
   {id:"fri2", day:"Thứ 6", time:"18:15", name:"Hybrid Training"},
 ];
 
@@ -654,14 +661,15 @@ function spotsTaken(classId){
 function renderHeroPreview(){
   const el = document.getElementById("heroPreview");
   el.innerHTML = "";
-  classes.slice(0,3).forEach(c => {
+  // Teaser: một dòng mỗi ngày (khung 18:15 chính) cho gọn
+  classes.filter(c => c.time === "18:15").forEach(c => {
     const left = CAPACITY - spotsTaken(c.id);
     let cls = "ok", label = left + " chỗ trống";
     if(left <= 0){ cls = "full"; label = "Hết chỗ"; }
     else if(left <= 2){ cls = "low"; label = "Còn " + left; }
     const row = document.createElement("div");
     row.className = "row";
-    row.innerHTML = `<span class="t">${c.time}</span><span class="n">${c.name}</span><span class="avail ${cls}">${label}</span>`;
+    row.innerHTML = `<span class="t">${c.day.replace("Thứ ","T")} ${c.time}</span><span class="n">${c.name}</span><span class="avail ${cls}">${label}</span>`;
     el.appendChild(row);
   });
 }
@@ -672,25 +680,38 @@ function renderSchedule(){
   const grid = document.createElement("div");
   grid.className = "class-grid";
 
-  classes.forEach(c => {
-    const taken = spotsTaken(c.id);
-    const left = CAPACITY - taken;
-    let spotsClass = "ok", spotsLabel = left + " chỗ trống";
-    if(left <= 0){ spotsClass = "full"; spotsLabel = "Đã đầy"; }
-    else if(left <= 2){ spotsClass = "low"; spotsLabel = "Còn " + left + " chỗ"; }
+  // Mỗi ngày một cột, trong cột xếp theo giờ (17:00 trước, 18:15 sau)
+  const days = [...new Set(classes.map(c => c.day))];
+  days.forEach(day => {
+    const col = document.createElement("div");
+    col.className = "day-col";
+    const head = document.createElement("div");
+    head.className = "day-head";
+    head.textContent = day;
+    col.appendChild(head);
 
-    const card = document.createElement("div");
-    card.className = "class-card";
-    card.innerHTML = `
-      <div class="day-label">${c.day}</div>
-      <div class="time">${c.time}</div>
-      <div class="name">${c.name}</div>
-      <div class="spots ${spotsClass}">${spotsLabel}</div>
-      <button class="btn ${left<=0?'btn-ghost':'btn-primary'}" ${left<=0?'disabled':''} onclick="openModal('${c.id}')">
-        ${left<=0?'Hết chỗ':'Đặt lớp này'}
-      </button>
-    `;
-    grid.appendChild(card);
+    classes.filter(c => c.day === day)
+      .sort((a, b) => a.time.localeCompare(b.time))
+      .forEach(c => {
+        const left = CAPACITY - spotsTaken(c.id);
+        let spotsClass = "ok", spotsLabel = left + " chỗ trống";
+        if(left <= 0){ spotsClass = "full"; spotsLabel = "Đã đầy"; }
+        else if(left <= 2){ spotsClass = "low"; spotsLabel = "Còn " + left + " chỗ"; }
+
+        const card = document.createElement("div");
+        card.className = "class-card" + (c.note ? " new-slot" : "");
+        card.innerHTML = `
+          <div class="time">${c.time}</div>
+          <div class="name">${c.name}</div>
+          ${c.note ? `<div class="class-note">${c.note}</div>` : ""}
+          <div class="spots ${spotsClass}">${spotsLabel}</div>
+          <button class="btn ${left<=0?'btn-ghost':'btn-primary'}" ${left<=0?'disabled':''} onclick="openModal('${c.id}')">
+            ${left<=0?'Hết chỗ':'Đặt lớp này'}
+          </button>
+        `;
+        col.appendChild(card);
+      });
+    grid.appendChild(col);
   });
   container.appendChild(grid);
 }
