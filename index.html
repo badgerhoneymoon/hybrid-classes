@@ -212,6 +212,17 @@
   .class-card .btn{width:100%;text-align:center;margin-top:6px;}
   .class-card .btn[disabled]{opacity:0.35;cursor:not-allowed;}
 
+  .opengym{
+    margin-top:20px;background:var(--ink);color:#fff;border-radius:14px;
+    padding:22px 24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  }
+  .opengym .og-days{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.5px;white-space:nowrap;}
+  .opengym .og-body{flex:1;min-width:220px;}
+  .opengym .og-title{font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:0.5px;}
+  .opengym .og-title b{color:var(--accent-gold);}
+  .opengym .og-sub{color:rgba(255,255,255,0.6);font-size:13px;margin-top:3px;}
+  .opengym .og-time{font-family:'Anton',sans-serif;font-size:26px;white-space:nowrap;}
+
   .facility-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
   .facility-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:14px;border:1px solid var(--border);display:block;}
 
@@ -422,6 +433,14 @@
   <p class="lead">Mỗi ngày là một chủ đề riêng — chọn lớp phù hợp và đặt chỗ bên dưới.</p>
   <div class="note" id="modeNote"></div>
   <div id="classSchedule"></div>
+  <div class="opengym">
+    <div class="og-days">THỨ 3 · THỨ 5</div>
+    <div class="og-body">
+      <div class="og-title"><b>Open Gym</b> — Tập tự do</div>
+      <div class="og-sub">Vào tập trong giờ mở cửa, không cần đặt chỗ. Tự tập theo giáo án hoặc dùng thiết bị của phòng.</div>
+    </div>
+    <div class="og-time">16:00–17:00</div>
+  </div>
 </section>
 
 <section id="gioithieu">
