@@ -234,8 +234,12 @@
   @media(max-width:760px){.coach-grid{grid-template-columns:1fr;}}
 
   .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
-  .about-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:34px 22px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;}
-  .about-card h3{margin:0;font-size:19px;}
+  .about-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:22px;}
+  .about-card h3{margin:0 0 8px;font-size:19px;}
+  .about-card p{margin:0;color:var(--ink-soft);font-size:13px;}
+  /* 4 trụ cột: thẻ chỉ có tiêu đề, canh giữa */
+  .about-grid .about-card{padding:34px 22px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:100px;}
+  .about-grid .about-card h3{margin:0;}
 
   /* Hybrid Fitness Racing — dải nền đen tạo điểm nhấn */
   .race{background:var(--hero-bg);color:#fff;max-width:none;padding:0;
