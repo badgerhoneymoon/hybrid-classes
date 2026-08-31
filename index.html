@@ -258,9 +258,10 @@
   .google-badge:hover{border-color:var(--ink);}
   .google-badge .stars{color:var(--accent-gold);letter-spacing:1px;}
   .google-badge .gb-cta{color:var(--ink-soft);font-weight:600;font-size:13px;}
-  .review-card{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:680px;}
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start;}
+  .review-card{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;}
   .review-card .stars{color:var(--accent-gold);letter-spacing:2px;font-size:15px;margin-bottom:12px;}
-  .review-card p{margin:0 0 16px;font-size:16px;line-height:1.7;color:var(--ink);}
+  .review-card p{margin:0 0 16px;font-size:15px;line-height:1.7;color:var(--ink);flex-grow:1;}
   .review-card cite{font-style:normal;font-weight:700;font-size:14px;color:var(--ink-soft);}
 
   table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -512,11 +513,18 @@
     <span><b>5.0</b> · 75 đánh giá trên Google</span>
     <span class="gb-cta">Xem trên Google →</span>
   </a>
-  <blockquote class="review-card">
-    <div class="stars">★★★★★</div>
-    <p>Coach Hoàng là một huấn luyện viên thân thiện, tích cực và luôn tạo cảm giác chào đón. Anh quan sát chuyển động rất kỹ, đưa ra những hướng dẫn rõ ràng và quan tâm đến nhu cầu của từng học viên. Trong các lớp nhóm nhỏ, Coach Hoàng luôn theo sát, điều chỉnh kỹ thuật và khích lệ để mọi người tự tin tập luyện mà không cảm thấy bị bỏ lại phía sau.</p>
-    <cite>— Lindsay Toussaint</cite>
-  </blockquote>
+  <div class="reviews-grid">
+    <blockquote class="review-card">
+      <div class="stars">★★★★★</div>
+      <p>Coach Hoàng là một huấn luyện viên thân thiện, tích cực và luôn tạo cảm giác chào đón. Anh quan sát chuyển động rất kỹ, đưa ra những hướng dẫn rõ ràng và quan tâm đến nhu cầu của từng học viên. Trong các lớp nhóm nhỏ, Coach Hoàng luôn theo sát, điều chỉnh kỹ thuật và khích lệ để mọi người tự tin tập luyện mà không cảm thấy bị bỏ lại phía sau.</p>
+      <cite>— Lindsay Toussaint</cite>
+    </blockquote>
+    <blockquote class="review-card">
+      <div class="stars">★★★★★</div>
+      <p>Coach Hoàng rất thân thiện và am hiểu chuyên môn. Với quy mô lớp nhỏ và ổn định, anh giúp học viên cảm thấy gần gũi, dễ dàng tương tác và trở thành một phần của cộng đồng tập luyện tại Elevate.</p>
+      <cite>— Ella Wong</cite>
+    </blockquote>
+  </div>
 </section>
 
 <section id="khonggian">
