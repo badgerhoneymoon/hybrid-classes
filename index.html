@@ -254,10 +254,6 @@
   .race-tag{border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;}
   .race-tag b{color:var(--accent-gold);}
 
-  .google-badge{display:inline-flex;align-items:center;gap:12px;background:var(--bg-soft);border:1px solid var(--border);border-radius:999px;padding:10px 20px;text-decoration:none;color:var(--ink);font-size:14px;margin-bottom:26px;flex-wrap:wrap;transition:border-color .15s;}
-  .google-badge:hover{border-color:var(--ink);}
-  .google-badge .stars{color:var(--accent-gold);letter-spacing:1px;}
-  .google-badge .gb-cta{color:var(--ink-soft);font-weight:600;font-size:13px;}
   .reviews-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start;}
   .review-card{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;}
   .review-card .stars{color:var(--accent-gold);letter-spacing:2px;font-size:15px;margin-bottom:12px;}
@@ -996,7 +992,7 @@ addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY >
 
 // Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
 // Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
-const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, #racing p, #racing .race-tags, #racing .btn, #reviews .google-badge, #reviews .review-card");
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, #racing p, #racing .race-tags, #racing .btn, #reviews .review-card");
 const fadeEls = document.querySelectorAll(".about-card, .price-card, .facility-grid img");
 slideEls.forEach(el => el.classList.add("reveal"));
 fadeEls.forEach(el => el.classList.add("reveal-fade"));
