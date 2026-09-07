@@ -543,18 +543,10 @@
 </section>
 
 <section id="thanhvien">
-  <div class="eyebrow">Cộng đồng</div>
-  <h2>Thành viên đã đăng ký</h2>
-  <p class="lead" id="membersLead"></p>
-  <table>
-    <thead><tr><th>Tên</th><th>Buổi đã giữ chỗ</th></tr></thead>
-    <tbody id="memberTableBody"></tbody>
-  </table>
-  <p id="noMembers" class="lead" style="display:none;margin-top:16px;">Chưa có ai đặt lớp — hãy là người đầu tiên ở mục Lịch lớp phía trên.</p>
-
+  <div class="eyebrow">Thành viên</div>
+  <h2>Kiểm tra gói tập của bạn</h2>
+  <p class="lead">Nhập SĐT hoặc email đã đăng ký với phòng tập để xem ngày đăng ký và hạn gói.</p>
   <div class="check-box" id="checkBox">
-    <h3>Kiểm tra gói tập của bạn</h3>
-    <p>Nhập SĐT hoặc email đã đăng ký với phòng tập để xem ngày đăng ký và hạn gói.</p>
     <div class="check-row">
       <input type="text" id="checkContact" placeholder="09xx xxx xxx" autocomplete="tel">
       <button class="btn btn-primary" onclick="checkMembership()">Kiểm tra</button>
@@ -566,17 +558,17 @@
 <section id="gia">
   <div class="eyebrow">Bảng giá</div>
   <h2>Một gói, tập trọn cả tuần</h2>
-  <p class="lead">Một gói duy nhất gồm cả lớp có HLV (T2·4·6) và Open Gym tự do (T3·5) — không phí lẻ. Tuần đầu trải nghiệm → tháng đầu ưu đãi 1.000.000đ → từ tháng thứ 2: 1.500.000đ/tháng.</p>
+  <p class="lead">Một gói duy nhất gồm cả lớp có HLV (T2·4·6) và Open Gym tự do (T3·5), không phí lẻ. Buổi đầu tập thử → tháng đầu ưu đãi 1.000.000đ → từ tháng thứ 2: 1.500.000đ/tháng.</p>
   <div class="pricing-grid">
     <div class="price-card">
-      <h3>Tuần đầu tiên</h3>
-      <div class="price">Trải nghiệm <small>phòng tập mời bạn</small></div>
+      <h3>Buổi tập thử</h3>
+      <div class="price">1 buổi <small>phòng tập mời bạn</small></div>
       <ul>
-        <li>Thử cả lớp có HLV & Open Gym</li>
+        <li>Một buổi tập cùng huấn luyện viên</li>
         <li>Không cần cam kết</li>
-        <li>Đặt chỗ như thành viên</li>
+        <li>Điền form để HLV nắm thể trạng của bạn</li>
       </ul>
-      <a href="#lich" class="btn btn-ghost" style="width:100%;">Đặt lớp thử</a>
+      <a href="#lich" class="btn btn-ghost" style="width:100%;">Đặt buổi thử</a>
     </div>
     <div class="price-card featured">
       <h3>Tháng đầu tiên</h3>
@@ -709,7 +701,6 @@ async function refresh(){
   }
   renderHeroPreview();
   renderSchedule();
-  renderMembers();
 }
 
 function spotsTaken(classId){
@@ -772,39 +763,6 @@ function renderSchedule(){
     grid.appendChild(col);
   });
   container.appendChild(grid);
-}
-
-function renderMembers(){
-  const body = document.getElementById("memberTableBody");
-  const noMembers = document.getElementById("noMembers");
-  body.innerHTML = "";
-  if(bookings.length === 0){
-    noMembers.style.display = "block";
-    return;
-  }
-  noMembers.style.display = "none";
-
-  // Gộp theo tên: mỗi người một dòng, các buổi dồn vào một ô cho gọn.
-  const people = new Map();
-  bookings.forEach(b => {
-    const key = b.name.trim().toLowerCase();
-    if(!people.has(key)) people.set(key, {name: b.name.trim(), ids: []});
-    people.get(key).ids.push(b.classId);
-  });
-
-  people.forEach(p => {
-    // Sắp các buổi theo đúng thứ tự trong tuần
-    const sessions = classes.filter(c => p.ids.includes(c.id));
-    const badges = sessions
-      .map(c => `<span class="badge">${c.day} · ${c.time}</span>`)
-      .join(" ");
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><b>${escapeText(p.name)}</b></td>
-      <td class="session-cell">${badges}</td>
-    `;
-    body.appendChild(tr);
-  });
 }
 
 function openModal(classId){
@@ -901,7 +859,6 @@ async function confirmBooking(){
   saveBookings(bookings);
   closeModal();
   renderSchedule();
-  renderMembers();
   renderHeroPreview();
   showToast(okDays.length ? `Đã giữ chỗ: ${okDays.join(", ")}` : fails.join(" · "));
 }
@@ -980,9 +937,6 @@ if(!SHARED) document.getElementById("checkBox").style.display = "none";
 document.getElementById("modeNote").textContent = SHARED
   ? "Chỗ trống hiển thị theo thời gian thực và dùng chung cho tất cả mọi người. Lượt đặt áp dụng cho buổi gần nhất của lớp trong tuần."
   : "Bản xem trước: lượt đặt lớp chỉ lưu trên trình duyệt này. Để bật đặt lớp dùng chung, nối Supabase theo hướng dẫn trong README.md.";
-document.getElementById("membersLead").textContent = SHARED
-  ? "Ai đã giữ chỗ cho các buổi sắp diễn ra."
-  : "Danh sách cập nhật theo các lượt đặt lớp trên trình duyệt này.";
 
 // ==== Hiệu ứng ====
 // Video hero: iOS/Safari hay chặn autoplay — ép phát khi đã tắt tiếng, và
