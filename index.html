@@ -252,7 +252,7 @@
   .race p{color:rgba(255,255,255,0.72);font-size:15px;max-width:620px;margin:0 0 16px;}
   .race-tags{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 30px;}
   .race-tag{border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;}
-  .race-tag b{color:var(--accent-gold);}
+  .race-tag b{color:#fff;}
 
   .reviews-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start;}
   .review-card{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;}
@@ -297,14 +297,20 @@
   }
   .modal h3{margin:0 0 4px;font-size:20px;}
   .modal .sub{color:var(--ink-soft);font-size:13px;margin-bottom:18px;text-transform:none;font-family:'Inter';letter-spacing:0;}
+  /* Popup đặt lớp: gom theo khung giờ như thời khoá biểu */
+  .pick-group{margin-bottom:16px;}
+  .pick-time{font-family:'Anton',sans-serif;font-size:20px;margin-bottom:9px;display:flex;align-items:center;gap:8px;}
+  .pick-time::before{content:"";width:16px;height:2px;background:var(--accent-gold);display:inline-block;}
+  .pick-days{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
   .pick{
-    display:flex;align-items:center;gap:11px;padding:10px 13px;
-    border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
-    cursor:pointer;background:var(--bg-soft);
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:12px 6px;border:1px solid var(--border);border-radius:10px;
+    cursor:pointer;background:var(--bg-soft);text-align:center;
   }
   .pick input{accent-color:var(--ink);width:18px;height:18px;flex-shrink:0;}
-  .pick .meta{font-size:13px;font-weight:700;line-height:1.4;}
-  .pick .meta small{color:var(--ink-soft);font-weight:500;}
+  .pick .meta{font-size:13px;font-weight:700;line-height:1.3;}
+  .pick .meta small{display:block;color:var(--ink-soft);font-weight:500;font-size:11px;margin-top:2px;}
+  .pick:has(input:checked){border-color:var(--ink);box-shadow:0 0 0 1px var(--ink);background:#fff;}
   .pick.disabled{opacity:0.45;cursor:not-allowed;}
   #classChecks{margin-bottom:16px;}
   .field{margin-bottom:14px;}
@@ -800,15 +806,29 @@ function openModal(classId){
   // Danh sách buổi trong tuần để tick chọn — buổi bấm vào được chọn sẵn
   const checks = document.getElementById("classChecks");
   checks.innerHTML = "";
-  classes.forEach(c => {
-    const left = CAPACITY - spotsTaken(c.id);
-    const full = left <= 0;
-    const row = document.createElement("label");
-    row.className = "pick" + (full ? " disabled" : "");
-    row.innerHTML = `
-      <input type="checkbox" value="${c.id}" ${full ? "disabled" : ""} ${c.id === classId && !full ? "checked" : ""}>
-      <span class="meta">${c.day} · ${c.time} — ${c.name}<br><small>${full ? "Đã đầy" : "còn " + left + " chỗ trống"}</small></span>`;
-    checks.appendChild(row);
+  // Gom theo khung giờ như thời khoá biểu: mỗi giờ một nhóm, trong nhóm là các ngày
+  const times = [...new Set(classes.map(c => c.time))].sort();
+  times.forEach(time => {
+    const group = document.createElement("div");
+    group.className = "pick-group";
+    const head = document.createElement("div");
+    head.className = "pick-time";
+    head.textContent = time;
+    group.appendChild(head);
+    const days = document.createElement("div");
+    days.className = "pick-days";
+    classes.filter(c => c.time === time).forEach(c => {
+      const left = CAPACITY - spotsTaken(c.id);
+      const full = left <= 0;
+      const row = document.createElement("label");
+      row.className = "pick" + (full ? " disabled" : "");
+      row.innerHTML = `
+        <input type="checkbox" value="${c.id}" ${full ? "disabled" : ""} ${c.id === classId && !full ? "checked" : ""}>
+        <span class="meta">${c.day}<br><small>${full ? "Đã đầy" : left + " chỗ"}</small></span>`;
+      days.appendChild(row);
+    });
+    group.appendChild(days);
+    checks.appendChild(group);
   });
   const prof = loadProfile();
   document.getElementById("bookName").value = prof.name || "";
