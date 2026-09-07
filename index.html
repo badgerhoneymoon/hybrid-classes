@@ -320,6 +320,7 @@
     background:var(--bg-soft);color:var(--ink);font-size:16px; /* ≥16px: iPhone không tự zoom khi gõ */
   }
   .field input:focus{outline:none;border-color:var(--ink);}
+  .intake-note{font-size:12px;color:var(--ink-soft);background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.4;}
   .modal-actions{display:flex;gap:10px;margin-top:20px;}
   .modal-actions .btn{flex:1;}
   .check-box{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:30px;max-width:540px;}
@@ -630,6 +631,17 @@
       <label for="bookContact">Số điện thoại / Email</label>
       <input type="text" id="bookContact" placeholder="09xx xxx xxx">
     </div>
+    <div id="intakeBlock">
+      <div class="intake-note">Buổi tập thử — cho HLV biết đôi chút để buổi tập hợp với bạn hơn (không bắt buộc).</div>
+      <div class="field">
+        <label for="bookExperience">Kinh nghiệm tập luyện / môn thể thao</label>
+        <input type="text" id="bookExperience" placeholder="VD: mới tập, hoặc từng chơi bóng đá, chạy bộ...">
+      </div>
+      <div class="field">
+        <label for="bookInjuries">Chấn thương đang có (nếu có)</label>
+        <input type="text" id="bookInjuries" placeholder="VD: đau lưng dưới, đầu gối phải...">
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Huỷ</button>
       <button class="btn btn-primary" id="confirmBtn" onclick="confirmBooking()">Xác nhận đặt lớp</button>
@@ -686,8 +698,8 @@ function loadProfile(){
   try{ return JSON.parse(localStorage.getItem("elevate_profile") || "{}"); }
   catch(e){ return {}; }
 }
-function saveProfile(name, contact){
-  localStorage.setItem("elevate_profile", JSON.stringify({name, contact}));
+function saveProfile(p){
+  localStorage.setItem("elevate_profile", JSON.stringify(p));
 }
 
 // Chế độ dùng chung: tải danh sách đặt chỗ (chỉ tên + lớp, không có liên hệ)
@@ -796,6 +808,10 @@ function openModal(classId){
   const prof = loadProfile();
   document.getElementById("bookName").value = prof.name || "";
   document.getElementById("bookContact").value = prof.contact || "";
+  document.getElementById("bookExperience").value = prof.experience || "";
+  document.getElementById("bookInjuries").value = prof.injuries || "";
+  // Form tập luyện chỉ hiện với khách lần đầu (chưa lưu hồ sơ trên máy này)
+  document.getElementById("intakeBlock").hidden = Boolean(prof.name);
   document.getElementById("overlay").classList.add("open");
 }
 function closeModal(){
@@ -804,6 +820,8 @@ function closeModal(){
 async function confirmBooking(){
   const name = document.getElementById("bookName").value.trim();
   const contact = document.getElementById("bookContact").value.trim();
+  const experience = document.getElementById("bookExperience").value.trim();
+  const injuries = document.getElementById("bookInjuries").value.trim();
   const picked = [...document.querySelectorAll("#classChecks input:checked")].map(i => i.value);
   if(!picked.length){
     showToast("Chọn ít nhất một buổi");
@@ -813,7 +831,7 @@ async function confirmBooking(){
     showToast("Vui lòng nhập đầy đủ tên và liên hệ");
     return;
   }
-  saveProfile(name, contact);
+  saveProfile({name, contact, experience, injuries});
 
   if(SHARED){
     // Đặt lần lượt từng buổi — máy chủ vẫn khoá sĩ số và chặn trùng tên cho từng lớp
@@ -825,6 +843,7 @@ async function confirmBooking(){
       const c = classes.find(x => x.id === id);
       const { data, error } = await db.rpc("book_class", {
         p_class_id: id, p_name: name, p_contact: contact,
+        p_experience: experience, p_injuries: injuries,
       });
       if(error){ fails.push(c.day + ": lỗi kết nối"); continue; }
       if(!data.ok){

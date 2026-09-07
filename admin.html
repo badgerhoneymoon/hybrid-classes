@@ -89,6 +89,8 @@
   td.contact a:hover{color:var(--ink);}
   .badge{display:inline-block;padding:3px 9px;border-radius:6px;background:var(--bg-soft);border:1px solid var(--border);color:var(--ink-soft);font-size:11px;font-weight:700;}
   .empty{color:var(--ink-soft);font-size:14px;padding:30px 0;text-align:center;}
+  .intake{font-size:11px;color:var(--ink-soft);margin-top:3px;line-height:1.35;}
+  .intake.injury{color:var(--danger);}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;font-weight:700;font-size:13px;display:none;z-index:200;}
   .toast.show{display:block;}
   @media(max-width:640px){
@@ -419,9 +421,10 @@ function render(){
         const tr = document.createElement("tr");
         const contactLink = /^[0-9+ ]+$/.test(r.contact)
           ? `<a href="tel:${r.contact.replace(/ /g,"")}">${r.contact}</a>` : r.contact;
+        const intake = `${r.experience ? `<div class="intake">Kinh nghiệm: ${escapeHtml(r.experience)}</div>` : ""}${r.injuries ? `<div class="intake injury">Chấn thương: ${escapeHtml(r.injuries)}</div>` : ""}`;
         tr.innerHTML = `
           <td><span class="badge">${info.label}</span></td>
-          <td><b>${escapeHtml(r.name)}</b></td>
+          <td><b>${escapeHtml(r.name)}</b>${intake}</td>
           <td class="contact">${contactLink}</td>
           <td style="color:var(--ink-soft);font-size:12px;">${fmtTime(r.created_at)}</td>
           <td style="text-align:right;"><button class="btn btn-danger">Xoá</button></td>`;
