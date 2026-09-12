@@ -226,7 +226,19 @@
   .race-tag{border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;}
   .race-tag b{color:#fff;}
 
-  .reviews-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start;}
+  /* Carousel đánh giá */
+  .review-carousel{position:relative;}
+  .review-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px;}
+  .review-track::-webkit-scrollbar{display:none;}
+  .review-track .review-card{flex:0 0 calc(50% - 8px);scroll-snap-align:start;}
+  .rc-btn{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;z-index:3;box-shadow:0 2px 10px rgba(0,0,0,0.1);transition:border-color .15s,transform .12s;}
+  .rc-btn:hover{border-color:var(--ink);}
+  .rc-btn:active{transform:translateY(-50%) scale(0.94);}
+  .rc-prev{left:-14px;} .rc-next{right:-14px;}
+  .rc-dots{display:flex;gap:8px;justify-content:center;margin-top:18px;}
+  .rc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:none;padding:0;cursor:pointer;transition:background .15s,transform .15s;}
+  .rc-dot.active{background:var(--ink);transform:scale(1.25);}
+
   .review-card{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;}
   .review-card .stars{color:var(--accent-gold);letter-spacing:2px;font-size:15px;margin-bottom:12px;}
   .review-card p{margin:0 0 16px;font-size:15px;line-height:1.7;color:var(--ink);flex-grow:1;}
@@ -246,6 +258,16 @@
   .price-card .price small{font-size:12px;color:var(--ink-soft);font-weight:500;text-transform:none;font-family:'Inter';}
   .price-card ul{list-style:none;padding:0;margin:18px 0;text-align:left;color:var(--ink-soft);font-size:13px;}
   .price-card li{padding:7px 0;border-bottom:1px dashed var(--border);}
+
+  /* Kèm cá nhân 1-1: khối riêng dưới bảng giá */
+  .pt-block{margin-top:22px;background:var(--ink);color:#fff;border-radius:16px;padding:28px 30px;display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;}
+  .pt-info{flex:1;min-width:260px;}
+  .pt-info h3{margin:0 0 8px;font-size:22px;}
+  .pt-info p{margin:0;color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;max-width:620px;}
+  .pt-cta{display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
+  .pt-price{font-family:'Anton',sans-serif;font-size:26px;white-space:nowrap;}
+  .pt-price span{font-family:'Inter';font-size:12px;font-weight:500;color:rgba(255,255,255,0.55);margin-left:4px;}
+  @media(max-width:640px){ .pt-block{flex-direction:column;align-items:flex-start;} .pt-cta{align-items:flex-start;width:100%;} .pt-cta .btn{width:100%;text-align:center;} }
 
   .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
   .contact-info div{margin-bottom:16px;font-size:14px;color:var(--ink-soft);}
@@ -363,7 +385,8 @@
     th,td{padding:10px 8px;font-size:13px;}
     .price-card{padding:22px 18px;}
     .contact-grid{grid-template-columns:1fr;}
-    .reviews-grid{grid-template-columns:1fr;}
+    .review-track .review-card{flex-basis:86%;}
+    .rc-btn{display:none;}
     .modal{padding:22px;}
   }
 </style>
@@ -463,7 +486,9 @@
 <section id="reviews">
   <div class="eyebrow">Đánh giá</div>
   <h2>Mọi người nói gì về Hoàng</h2>
-  <div class="reviews-grid">
+  <div class="review-carousel">
+    <button class="rc-btn rc-prev" onclick="scrollReviews(-1)" aria-label="Xem trước">‹</button>
+    <div class="review-track" id="reviewTrack">
     <blockquote class="review-card">
       <div class="stars">★★★★★</div>
       <p>Coach Hoàng là một huấn luyện viên thân thiện, tích cực và luôn tạo cảm giác chào đón. Anh quan sát chuyển động rất kỹ, đưa ra những hướng dẫn rõ ràng và quan tâm đến nhu cầu của từng học viên. Trong các lớp nhóm nhỏ, Coach Hoàng luôn theo sát, điều chỉnh kỹ thuật và khích lệ để mọi người tự tin tập luyện mà không cảm thấy bị bỏ lại phía sau.</p>
@@ -484,7 +509,10 @@
       <p>Phòng tập đẹp, sạch sẽ, đầy đủ thiết bị. Coach hướng dẫn kỹ, sửa động tác chi tiết và biết điều chỉnh bài phù hợp với từng người. Mỗi buổi đều có mục tiêu rõ ràng, vừa thử thách vừa vui và thấy mình tiến bộ thật sự qua từng buổi.</p>
       <cite>— Chế Văn Hào</cite>
     </blockquote>
+    </div>
+    <button class="rc-btn rc-next" onclick="scrollReviews(1)" aria-label="Xem tiếp">›</button>
   </div>
+  <div class="rc-dots" id="rcDots"></div>
 </section>
 
 <section id="khonggian">
@@ -548,6 +576,17 @@
         <li>Theo dõi tiến độ theo số liệu</li>
       </ul>
       <a href="#lich" class="btn btn-ghost" style="width:100%;">Tiếp tục đồng hành</a>
+    </div>
+  </div>
+
+  <div class="pt-block">
+    <div class="pt-info">
+      <h3>Kèm cá nhân 1-1</h3>
+      <p>Một kèm một với huấn luyện viên: giáo án riêng theo mục tiêu và thể trạng của bạn, lịch tập linh hoạt. Phù hợp khi bạn muốn tiến bộ nhanh hoặc cần kèm sát hơn.</p>
+    </div>
+    <div class="pt-cta">
+      <div class="pt-price">Liên hệ <span>theo nhu cầu</span></div>
+      <a href="tel:+84377429026" class="btn btn-primary">Liên hệ tư vấn</a>
     </div>
   </div>
 </section>
@@ -921,7 +960,7 @@ addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY >
 
 // Hiện dần khi cuộn tới: tiêu đề trôi nhẹ lên, thẻ mờ dần vào (nối nhịp nhau).
 // Các khối render lại liên tục (#classSchedule) chỉ gắn hiệu ứng ở khung ngoài.
-const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, #racing p, #racing .race-tags, #racing .btn, #reviews .review-card");
+const slideEls = document.querySelectorAll("section .eyebrow, section h2, section .lead, .note, #classSchedule, .coach-grid > *, #thanhvien table, .contact-grid > *, #racing p, #racing .race-tags, #racing .btn");
 const fadeEls = document.querySelectorAll(".about-card, .price-card, .facility-grid img");
 slideEls.forEach(el => el.classList.add("reveal"));
 fadeEls.forEach(el => el.classList.add("reveal-fade"));
@@ -936,6 +975,50 @@ const io = new IntersectionObserver(entries => {
   });
 }, {threshold: 0.12});
 [...slideEls, ...fadeEls].forEach(el => io.observe(el));
+
+// ==== Carousel đánh giá ====
+(function(){
+  const track = document.getElementById("reviewTrack");
+  const dotsWrap = document.getElementById("rcDots");
+  if(!track || !dotsWrap) return;
+  const cards = [...track.querySelectorAll(".review-card")];
+  if(!cards.length) return;
+
+  const step = () => {
+    const gap = parseFloat(getComputedStyle(track).gap) || 16;
+    return cards[0].offsetWidth + gap;
+  };
+  const activeIndex = () => Math.round(track.scrollLeft / step());
+  const goTo = (i) => {
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    track.scrollTo({ left: i * step(), behavior: "smooth" });
+  };
+
+  cards.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.className = "rc-dot" + (i === 0 ? " active" : "");
+    b.setAttribute("aria-label", "Đánh giá " + (i + 1));
+    b.onclick = () => { goTo(i); nudge(); };
+    dotsWrap.appendChild(b);
+  });
+  const dots = [...dotsWrap.children];
+  track.addEventListener("scroll", () => {
+    const a = activeIndex();
+    dots.forEach((d, i) => d.classList.toggle("active", i === a));
+  }, { passive: true });
+
+  window.scrollReviews = (dir) => { goTo(activeIndex() + dir); nudge(); };
+
+  // Tự trôi nhẹ; tạm dừng khi rê chuột hoặc vừa thao tác
+  let paused = false, resumeT;
+  const nudge = () => { paused = true; clearTimeout(resumeT); resumeT = setTimeout(() => paused = false, 9000); };
+  track.addEventListener("pointerenter", () => paused = true);
+  track.addEventListener("pointerleave", () => { if(!resumeT) paused = false; });
+  setInterval(() => {
+    if(paused) return;
+    goTo(activeIndex() + 1 >= cards.length ? 0 : activeIndex() + 1);
+  }, 5000);
+})();
 
 refresh();
 if(SHARED){
