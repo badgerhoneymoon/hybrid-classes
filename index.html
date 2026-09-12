@@ -189,39 +189,28 @@
   section h2{font-size:clamp(26px,4vw,38px);margin:0 0 14px;}
   section .lead{color:var(--ink-soft);margin:0 0 32px;font-size:15px;max-width:560px;}
 
-  .class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
-  .day-col{display:flex;flex-direction:column;gap:12px;}
-  .day-head{
-    font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--ink);
-    font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:2px;
-  }
-  .day-head::before{content:"";width:18px;height:2px;background:var(--accent-gold);display:inline-block;}
-  .class-card{
-    background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;
-    display:flex;flex-direction:column;gap:10px;
-    box-shadow:0 1px 2px rgba(0,0,0,0.03);
-  }
-  .class-card.new-slot{border-style:dashed;background:var(--bg-soft);}
-  .class-card .time{font-family:'Anton',sans-serif;font-size:26px;}
-  .class-card .name{font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;}
-  .class-note{font-size:12px;color:var(--accent-gold);font-weight:600;line-height:1.4;}
-  .spots{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
-  .spots.ok{color:var(--success);}
-  .spots.low{color:var(--accent-gold);}
-  .spots.full{color:var(--danger);}
-  .class-card .btn{width:100%;text-align:center;margin-top:6px;}
-  .class-card .btn[disabled]{opacity:0.35;cursor:not-allowed;}
+  /* Lịch tuần gọn: 5 cột ngày, mỗi cột vài khung giờ nhỏ */
+  .class-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch;}
+  .day-col{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;}
+  .day-head{text-align:center;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .slot{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 8px;text-align:center;transition:transform .15s, box-shadow .15s, border-color .15s;}
+  .slot.book{cursor:pointer;}
+  @media (hover:hover){ .slot.book:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,0.08);border-color:var(--ink);} }
+  .slot .stime{font-family:'Anton',sans-serif;font-size:17px;letter-spacing:0.5px;}
+  .slot .sname{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);margin-top:2px;}
+  .slot .savail{font-size:11px;font-weight:700;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .slot .savail::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;}
+  .savail.ok{color:var(--success);}
+  .savail.low{color:var(--accent-gold);}
+  .savail.full{color:var(--danger);}
+  .slot.full{opacity:0.5;}
+  .slot.gym{background:transparent;border-style:dashed;}
+  .slot.gym .stime{font-size:14px;color:var(--ink-soft);}
+  .slot.gym .gymlabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);margin-top:3px;}
 
-  .opengym{
-    margin-top:20px;background:var(--ink);color:#fff;border-radius:14px;
-    padding:22px 24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;
-  }
-  .opengym .og-days{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:0.5px;white-space:nowrap;}
-  .opengym .og-body{flex:1;min-width:220px;}
-  .opengym .og-title{font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:0.5px;}
-  .opengym .og-title b{color:var(--accent-gold);}
-  .opengym .og-sub{color:rgba(255,255,255,0.6);font-size:13px;margin-top:3px;}
-  .opengym .og-time{font-family:'Anton',sans-serif;font-size:26px;white-space:nowrap;}
+  .sched-notes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;}
+  .sched-note{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--ink-soft);line-height:1.5;}
+  .sched-note b{color:var(--ink);}
 
   .facility-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
   .facility-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;border-radius:14px;border:1px solid var(--border);display:block;}
@@ -385,10 +374,11 @@
     .stat-box{padding:14px 6px;border-radius:12px;}
     .stat-box .big{font-size:17px;}
     .stat-box .small{font-size:8px;letter-spacing:0.6px;}
-    /* Mỗi ngày là một cột, vuốt ngang trên màn hình hẹp */
+    /* Lịch tuần: vuốt ngang qua từng ngày trên màn hình hẹp */
     .class-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:12px;padding-bottom:6px;}
     .class-grid::-webkit-scrollbar{display:none;}
-    .day-col{min-width:78%;scroll-snap-align:center;}
+    .day-col{min-width:62%;scroll-snap-align:center;}
+    .sched-notes{grid-template-columns:1fr;}
 
     .coach-photo{max-width:340px;margin:0 auto;}
     th,td{padding:10px 8px;font-size:13px;}
@@ -447,17 +437,13 @@
 
 <section id="lich">
   <div class="eyebrow">Lịch tập</div>
-  <h2>Lịch lớp buổi chiều</h2>
-  <p class="lead">Mỗi ngày là một chủ đề riêng — chọn lớp phù hợp và đặt chỗ bên dưới.</p>
+  <h2>Lịch tập trong tuần</h2>
+  <p class="lead">Chọn buổi bạn muốn giữ chỗ. Chấm màu cho biết còn bao nhiêu chỗ.</p>
   <div class="note" id="modeNote"></div>
   <div id="classSchedule"></div>
-  <div class="opengym">
-    <div class="og-days">THỨ 3 · THỨ 5</div>
-    <div class="og-body">
-      <div class="og-title"><b>Open Gym</b> — Tập tự do</div>
-      <div class="og-sub">Đã bao gồm trong gói tập — vào tập tự do, không cần đặt chỗ, không phí thêm.</div>
-    </div>
-    <div class="og-time">16:00–17:00</div>
+  <div class="sched-notes">
+    <div class="sched-note"><b>Lớp có HLV:</b> giữ sĩ số 6–8 người, cần đặt chỗ trước.</div>
+    <div class="sched-note"><b>Open Gym:</b> tập tự do, không giới hạn số người. Báo trước để phòng tập chuẩn bị.</div>
   </div>
 </section>
 
@@ -746,9 +732,11 @@ function renderSchedule(){
   const grid = document.createElement("div");
   grid.className = "class-grid";
 
-  // Mỗi ngày một cột, trong cột xếp theo giờ (17:00 trước, 18:15 sau)
-  const days = [...new Set(classes.map(c => c.day))];
-  days.forEach(day => {
+  // Lịch cả tuần: T2/4/6 là lớp có HLV (đặt chỗ), T3/5 là Open Gym tự do
+  const week = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6"];
+  const openGymDays = { "Thứ 3": true, "Thứ 5": true };
+
+  week.forEach(day => {
     const col = document.createElement("div");
     col.className = "day-col";
     const head = document.createElement("div");
@@ -756,27 +744,30 @@ function renderSchedule(){
     head.textContent = day;
     col.appendChild(head);
 
-    classes.filter(c => c.day === day)
-      .sort((a, b) => a.time.localeCompare(b.time))
-      .forEach(c => {
-        const left = CAPACITY - spotsTaken(c.id);
-        let spotsClass = "ok", spotsLabel = left + " chỗ trống";
-        if(left <= 0){ spotsClass = "full"; spotsLabel = "Đã đầy"; }
-        else if(left <= 2){ spotsClass = "low"; spotsLabel = "Còn " + left + " chỗ"; }
+    if(openGymDays[day]){
+      const slot = document.createElement("div");
+      slot.className = "slot gym";
+      slot.innerHTML = `<div class="stime">16:00–17:00</div><div class="gymlabel">Open Gym · tự do</div>`;
+      col.appendChild(slot);
+    } else {
+      classes.filter(c => c.day === day)
+        .sort((a, b) => a.time.localeCompare(b.time))
+        .forEach(c => {
+          const left = CAPACITY - spotsTaken(c.id);
+          const full = left <= 0;
+          let cls = full ? "full" : (left <= 2 ? "low" : "ok");
+          let label = full ? "Đã đầy" : "Còn " + left + " chỗ";
 
-        const card = document.createElement("div");
-        card.className = "class-card" + (c.note ? " new-slot" : "");
-        card.innerHTML = `
-          <div class="time">${c.time}</div>
-          <div class="name">${c.name}</div>
-          ${c.note ? `<div class="class-note">${c.note}</div>` : ""}
-          <div class="spots ${spotsClass}">${spotsLabel}</div>
-          <button class="btn ${left<=0?'btn-ghost':'btn-primary'}" ${left<=0?'disabled':''} onclick="openModal('${c.id}')">
-            ${left<=0?'Hết chỗ':'Đặt lớp này'}
-          </button>
-        `;
-        col.appendChild(card);
-      });
+          const slot = document.createElement("div");
+          slot.className = "slot book" + (full ? " full" : "");
+          slot.innerHTML = `
+            <div class="stime">${c.time}</div>
+            <div class="sname">${c.name}</div>
+            <div class="savail ${cls}">${label}</div>`;
+          if(!full) slot.onclick = () => openModal(c.id);
+          col.appendChild(slot);
+        });
+    }
     grid.appendChild(col);
   });
   container.appendChild(grid);
