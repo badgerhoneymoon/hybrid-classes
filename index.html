@@ -260,14 +260,17 @@
   .price-card li{padding:7px 0;border-bottom:1px dashed var(--border);}
 
   /* Kèm cá nhân 1-1: khối riêng dưới bảng giá */
-  .pt-block{margin-top:22px;background:var(--ink);color:#fff;border-radius:16px;padding:28px 30px;display:flex;align-items:center;justify-content:space-between;gap:26px;flex-wrap:wrap;}
-  .pt-info{flex:1;min-width:260px;}
-  .pt-info h3{margin:0 0 8px;font-size:22px;}
-  .pt-info p{margin:0;color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;max-width:620px;}
-  .pt-cta{display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
-  .pt-price{font-family:'Anton',sans-serif;font-size:26px;white-space:nowrap;}
-  .pt-price span{font-family:'Inter';font-size:12px;font-weight:500;color:rgba(255,255,255,0.55);margin-left:4px;}
-  @media(max-width:640px){ .pt-block{flex-direction:column;align-items:flex-start;} .pt-cta{align-items:flex-start;width:100%;} .pt-cta .btn{width:100%;text-align:center;} }
+  .pt-block{margin-top:22px;background:var(--ink);color:#fff;border-radius:16px;padding:30px 32px;display:flex;align-items:center;gap:40px;flex-wrap:wrap;}
+  .pt-info{flex:1;min-width:280px;}
+  .pt-info h3{margin:0 0 10px;font-size:24px;}
+  .pt-info p{margin:0 0 18px;color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;max-width:560px;}
+  .pt-tiers{flex:0 0 340px;max-width:100%;}
+  .pt-tier{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.12);}
+  .pt-tier:first-child{border-top:none;}
+  .pt-tier-label{color:rgba(255,255,255,0.72);font-size:14px;}
+  .pt-tier-price{font-family:'Anton',sans-serif;font-size:21px;letter-spacing:0.3px;white-space:nowrap;}
+  .pt-tier:first-child .pt-tier-price{font-family:'Inter';font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);}
+  @media(max-width:760px){ .pt-tiers{flex-basis:100%;} }
 
   .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
   .contact-info div{margin-bottom:16px;font-size:14px;color:var(--ink-soft);}
@@ -582,11 +585,14 @@
   <div class="pt-block">
     <div class="pt-info">
       <h3>Kèm cá nhân 1-1</h3>
-      <p>Một kèm một với huấn luyện viên: giáo án riêng theo mục tiêu và thể trạng của bạn, lịch tập linh hoạt. Phù hợp khi bạn muốn tiến bộ nhanh hoặc cần kèm sát hơn.</p>
+      <p>Một kèm một với huấn luyện viên: giáo án riêng theo mục tiêu và thể trạng của bạn, lịch tập linh hoạt. Buổi đầu là buổi đánh giá và tập thử để HLV thiết kế lộ trình phù hợp.</p>
+      <a href="tel:+84377429026" class="btn btn-light">Liên hệ tư vấn</a>
     </div>
-    <div class="pt-cta">
-      <div class="pt-price">Liên hệ <span>theo nhu cầu</span></div>
-      <a href="tel:+84377429026" class="btn btn-primary">Liên hệ tư vấn</a>
+    <div class="pt-tiers">
+      <div class="pt-tier"><span class="pt-tier-label">Buổi đầu tiên</span><span class="pt-tier-price">Đánh giá + tập thử</span></div>
+      <div class="pt-tier"><span class="pt-tier-label">Gói 10 buổi</span><span class="pt-tier-price">6.000.000đ</span></div>
+      <div class="pt-tier"><span class="pt-tier-label">Gói 20 buổi</span><span class="pt-tier-price">10.000.000đ</span></div>
+      <div class="pt-tier"><span class="pt-tier-label">Gói 40 buổi</span><span class="pt-tier-price">16.000.000đ</span></div>
     </div>
   </div>
 </section>
